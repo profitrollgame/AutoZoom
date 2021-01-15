@@ -1,0 +1,8 @@
+{
+    "debug": false,
+    "shutdown_timeout": 30,
+    "shutdown_enabled": true,
+    "start": "shift+f7",
+    "stop": "shift+f8",
+    "telegram_enabled": false
+}
