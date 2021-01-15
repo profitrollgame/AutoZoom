@@ -8,6 +8,7 @@
 №3. Инструкция по использованию
 №4. Благодарности и помощь
 
+GitHub вики проекта: https://github.com/profitrollgame/autozoom/wiki
 Обратная связь и предложения: https://t.me/profitroll
 Сообщить об ошибке/баге: https://github.com/profitrollgame/autozoom/issues
 
