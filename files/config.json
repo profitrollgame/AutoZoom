@@ -4,5 +4,10 @@
     "shutdown_enabled": true,
     "start": "shift+f7",
     "stop": "shift+f8",
-    "telegram_enabled": false
+    "telegram_enabled": false,
+    "use_colors": true,
+    "run_fullscreen": false,
+    "use_rpc": true,
+    "sounds": true,
+    "end_mode": "shutdown"
 }
