@@ -68,6 +68,7 @@ def mainMenu():
             print(f' {BRED}5.{RESET} Помощь и связь')
             print(f' {BRED}6.{RESET} Закрыть приложение')
             menu_choose = input(f'\n > {BRED}')
+            print(RESET)
             
             if menu_choose == '1':
                 main('menu')

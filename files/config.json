@@ -9,5 +9,7 @@
     "run_fullscreen": false,
     "use_rpc": true,
     "sounds": true,
-    "end_mode": "shutdown"
+    "end_mode": "shutdown",
+    "obs_exe": null,
+    "obs_core": null
 }

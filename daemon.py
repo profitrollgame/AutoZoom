@@ -626,6 +626,11 @@ def settings():
             else:
                 sounds_val = f'{BRED}ERROR{RESET}'
 
+            if getConfig("obs_exe") and getConfig("obs_core") not in [None, 'Disabled']:
+                obs_val = f'{BGREEN}Вкл.{RESET}'
+            else:
+                obs_val = f'{BRED}Выкл.{RESET}'
+
             # Пока слишком много ошибок
             # if getConfig("use_rpc"):
                 # rpc_val = f'{BGREEN}Вкл.{RESET}'
@@ -669,7 +674,7 @@ def settings():
             start_val = getConfig("start")
             stop_val = getConfig("stop")
             
-            print(f'{BBLACK}»{RESET} Настройки\n')
+            print(f'{RESET}{BBLACK}»{RESET} Настройки\n')
 
             print(f'  {BRED}1.{RESET} Режим отладки ({debug_val})')
             print(f'     {BBLACK}Не рекомендуем включать его без необходимости\n')
@@ -682,33 +687,37 @@ def settings():
 
             print(f'  {BRED}4.{RESET} Звуковые сигналы ({sounds_val})')
             print(f'     {BBLACK}Воспроизводить звуки при начале/конце уроков и записи видео\n')
+            
+            
+            print(f'  {BRED}5.{RESET} Запись через OBS ({obs_val})')
+            print(f'     {BBLACK}Возможность записи уроков через OBS\n')
 
             # Пока слишком много ошибок
             # print(f'  {BRED}3.{RESET} Discord RPC ({rpc_val})')
             # print(f'     {BBLACK}Показывать какой идёт урок и какое меню открыто (нужен перезапуск)\n')
 
-            print(f'  {BRED}5.{RESET} Автовыключение ({shutdown_en_val})')
+            print(f'  {BRED}6.{RESET} Автовыключение ({shutdown_en_val})')
             print(f'     {BBLACK}Когда уроки закончатся компьютер выключится\n')
 
-            print(f'  {BRED}6.{RESET} Таймаут выключения ({YELLOW}{shutdown_time_val} мин.{RESET})')
+            print(f'  {BRED}7.{RESET} Таймаут выключения ({YELLOW}{shutdown_time_val} мин.{RESET})')
             print(f'     {BBLACK}Время в минутах после которого ПК будет выключен\n')
 
-            print(f'  {BRED}7.{RESET} Начать запись ({YELLOW}{start_val}{RESET})')
+            print(f'  {BRED}8.{RESET} Начать запись ({YELLOW}{start_val}{RESET})')
             print(f'     {BBLACK}Комбинация клавиш для начала записи через OBS (см. документацию)\n')
 
-            print(f'  {BRED}8.{RESET} Остановить запись ({YELLOW}{stop_val}{RESET})')
+            print(f'  {BRED}9.{RESET} Остановить запись ({YELLOW}{stop_val}{RESET})')
             print(f'     {BBLACK}Комбинация клавиш для остановки записи через OBS (см. документацию)\n')
 
-            print(f'  {BRED}9.{RESET} Отправлять уведомления ({telegram_en_val})')
+            print(f' {BRED}10.{RESET} Отправлять уведомления ({telegram_en_val})')
             print(f'     {BBLACK}Ваш бот отправит сообщениия о начале/конце урока и выключении ПК\n')
 
-            print(f'  {BRED}10.{RESET} Настроить Telegram бота ({tg_var})')
+            print(f' {BRED}11.{RESET} Настроить Telegram бота ({tg_var})')
             print(f'     {BBLACK}Настроить на вашем ПК бота для ЛС (см. документацию)\n')
 
-            print(f'  {BRED}11.{RESET} Сбросить все настройки')
+            print(f' {BRED}12.{RESET} Сбросить все настройки')
             print(f'     {BBLACK}Восстановить настройки по умолчанию\n')
 
-            print(f' {BRED}12.{RESET} В главное меню')
+            print(f' {BRED}13.{RESET} В главное меню')
             print(f'     {BBLACK}Выйти без внесения изменений{RESET}\n')
 
             print(f' {BBLACK}Для переключения параметров Вкл/Выкл просто введите номер\n Если окно приложения слишком мелкое - увеличьте его или листайте это меню{RESET}')
@@ -751,6 +760,50 @@ def settings():
                 
                 clear()
                 continue
+                
+            elif settings_choose == '5':
+                with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
+                    config_list = json.load(json_file)
+                
+                if getConfig("obs_core") and getConfig("obs_exe") not in [None, 'Disabled']:
+                    config_list["obs_core"] = 'Disabled'
+                    config_list["obs_exe"] = 'Disabled'
+                else:
+                    clear()
+                    obs_choice = input(f'{RESET}Хотите использовать запись через OBS? {RESET}({BGREEN}Да{RESET}/{BRED}Нет{RESET}): ')
+                    if obs_choice.lower() in ['y', 'yes', 'д', 'да']:
+                        while True:
+                            try:
+                                filename = easygui.fileopenbox('Выберите путь до obs32.exe или obs64.exe')
+                                if filename.find("obs64.exe") != -1:
+                                    config_list["obs_exe"] = filename
+                                    config_list["obs_core"] = filename[:-9]
+                                    print(f'Сохранены пути для OBS:\nПриложение: {BRED}{filename}{RESET}\nКорневая папка: {BRED}{filename[:-9]}{RESET}')
+                                    time.sleep(3)
+                                    break
+                                elif filename.find("obs32.exe") != -1:
+                                    config_list["obs_exe"] = filename
+                                    config_list["obs_core"] = filename[:-9]
+                                    print(f'Сохранены пути для OBS:\nПриложение: {BRED}{filename}{RESET}\nКорневая папка: {BRED}{filename[:-9]}{RESET}')
+                                    time.sleep(3)
+                                    break
+                                elif filename.find("obs.exe") != -1:
+                                    f.write(filename)
+                                    config_list["obs_exe"] = filename
+                                    config_list["obs_core"] = filename[:-7]
+                                    print(f'Сохранены пути для OBS:\nПриложение: {BRED}{filename}{RESET}\nКорневая папка: {BRED}{filename[:-7]}{RESET}')
+                                    time.sleep(3)
+                                    break
+                                else:
+                                    easygui.msgbox("Неверный путь")
+                                break
+                            except:
+                                none = input('Вы не выбрали верный путь для OBS.\n\n > ')
+                                clear()
+                                break
+                saveJson(files_folder+'config.json', config_list)
+                clear()
+                continue
 
             # Пока слишком много ошибок
             # elif settings_choose == '3':
@@ -763,7 +816,7 @@ def settings():
                 # clear()
                 # continue
 
-            elif settings_choose == '5':
+            elif settings_choose == '6':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
                     
@@ -772,7 +825,7 @@ def settings():
                 clear()
                 continue
 
-            elif settings_choose == '6':
+            elif settings_choose == '7':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
                 
@@ -788,7 +841,7 @@ def settings():
                     continue
                 continue
 
-            elif settings_choose == '7':
+            elif settings_choose == '8':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
                 
@@ -804,7 +857,7 @@ def settings():
                     continue
                 continue
 
-            elif settings_choose == '8':
+            elif settings_choose == '9':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
                 
@@ -820,7 +873,7 @@ def settings():
                     continue
                 continue
 
-            elif settings_choose == '9':
+            elif settings_choose == '10':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
                     
@@ -829,7 +882,7 @@ def settings():
                 clear()
                 continue
 
-            elif settings_choose == '10':
+            elif settings_choose == '11':
                 clear()
                 print(f'{RESET}Пожалуйста, прочтите инструкцию по установке Telegram бота в {BRED}README.txt{RESET}')
                 print(f'или в документации/инструкции что в разделе {CYAN}Помощь{RESET} главного меню')
@@ -848,7 +901,7 @@ def settings():
                     clear()
                 continue
 
-            elif settings_choose == '11':
+            elif settings_choose == '12':
                 while True:
                     clear()
                     reset_decision = input(f'{RESET}Вы уверены что хотите сбросить настройки? {RESET}({BGREEN}Да{RESET}/{BRED}Нет{RESET})\n\n{BRED}Внимание!{RESET} Это действие нельзя обратить!\nВаш список конференций затронут НЕ будет.\n\n > ')
@@ -861,13 +914,13 @@ def settings():
                         temp_config_list["stop"] = "shift+f8"
                         temp_config_list["telegram_enabled"] = False
                         temp_config_list["use_colors"] = True
+                        temp_config_list["run_fullscreen"] = False
+                        temp_config_list["use_rpc"] = True
+                        temp_config_list["sounds"] = True
+                        temp_config_list["end_mode"] = "shutdown"
+                        temp_config_list["obs_exe"] = None
+                        temp_config_list["obs_core"] = None
                         saveJson(files_folder+'config.json', temp_config_list)
-                        if os.path.exists(files_folder+"obscorepath.txt"):
-                                os.remove(files_folder+"obscorepath.txt")
-                        if os.path.exists(files_folder+"obspath.txt"):
-                                os.remove(files_folder+"obspath.txt")
-                        if os.path.exists(files_folder+"telegram.conf"):
-                                os.remove(files_folder+"telegram.conf")
                         clear()
                         none = input(f'{RESET}Все настройки были сброшены до стандартных.\n\n > ')
                         clear()
@@ -882,7 +935,7 @@ def settings():
                 clear()
                 continue
 
-            elif settings_choose == '12':
+            elif settings_choose == '13':
                 rpc.inMenu()
                 clear()
                 os.system("title AutoZoom (Главная)")
@@ -901,58 +954,64 @@ def main(source='deamon'):
         os.system("title AutoZoom (Демон)")
 
         import webbrowser
-            
-        try:
-            with open(files_folder+'obspath.txt', 'r', encoding="utf-8") as f:
-                current_obs_path = f.read()
-        except:
-            current_obs_path = ''
         
-        if not os.path.exists(files_folder+'obspath.txt') or current_obs_path == '':
+        if (getConfig("obs_core") or getConfig("obs_exe")) == None:
             clear()
-            obs_choice = input(f'Хотите использовать запись через OBS? {RESET}({BGREEN}Да{RESET}/{BRED}Нет{RESET}): ')
-            if obs_choice.lower() == 'д' or obs_choice.lower() == 'да' or obs_choice.lower() == 'y' or obs_choice.lower() == 'yes':
-                with open(files_folder+'obspath.txt', 'w', encoding="utf-8") as f:
-                    while True:
-                        try:
-                            filename = easygui.fileopenbox('Выберите путь до obs32.exe или obs64.exe')
-                            if filename.find("obs64.exe") != -1:
-                                f.write(filename)
-                                with open(files_folder+'obscorepath.txt', 'w', encoding="utf-8") as f:
-                                    f.write(filename[:-9])
-                                print(f'Сохранены пути для OBS:\nПриложение: {BRED}{filename}{RESET}\nКорневая папка: {BRED}{filename[:-9]}{RESET}')
-                                time.sleep(3)
+            while True:
+                obs_choice = input(f'{RESET}Хотите использовать запись через OBS? {RESET}({BGREEN}Да{RESET}/{BRED}Нет{RESET}): ')
+                if obs_choice.lower() in ['y', 'yes', 'д', 'да']:
+                    with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
+                        config_list = json.load(json_file)
+                        while True:
+                            try:
+                                filename = easygui.fileopenbox('Выберите путь до obs32.exe или obs64.exe')
+                                if filename.find("obs64.exe") != -1:
+                                    config_list["obs_exe"] = filename
+                                    config_list["obs_core"] = filename[:-9]
+                                    saveJson(files_folder+'config.json', config_list)
+                                    print(f'Сохранены пути для OBS:\nПриложение: {BRED}{filename}{RESET}\nКорневая папка: {BRED}{filename[:-9]}{RESET}')
+                                    time.sleep(3)
+                                    break
+                                elif filename.find("obs32.exe") != -1:
+                                    config_list["obs_exe"] = filename
+                                    config_list["obs_core"] = filename[:-9]
+                                    saveJson(files_folder+'config.json', config_list)
+                                    print(f'Сохранены пути для OBS:\nПриложение: {BRED}{filename}{RESET}\nКорневая папка: {BRED}{filename[:-9]}{RESET}')
+                                    time.sleep(3)
+                                    break
+                                elif filename.find("obs.exe") != -1:
+                                    config_list["obs_exe"] = filename
+                                    config_list["obs_core"] = filename[:-7]
+                                    saveJson(files_folder+'config.json', config_list)
+                                    print(f'Сохранены пути для OBS:\nПриложение: {BRED}{filename}{RESET}\nКорневая папка: {BRED}{filename[:-7]}{RESET}')
+                                    time.sleep(3)
+                                    break
+                                else:
+                                    easygui.msgbox("Неверный путь")
+                                    continue
                                 break
-                            elif filename.find("obs32.exe") != -1:
-                                f.write(filename)
-                                with open(files_folder+'obscorepath.txt', 'w', encoding="utf-8") as f:
-                                    f.write(filename[:-9])
-                                print(f'Сохранены пути для OBS:\nПриложение: {BRED}{filename}{RESET}\nКорневая папка: {BRED}{filename[:-9]}{RESET}')
-                                time.sleep(3)
+                            except:
+                                none = input('Вы не выбрали верный путь для OBS.\n\n > ')
+                                config_list["obs_exe"] = 'Disabled'
+                                config_list["obs_core"] = 'Disabled'
+                                saveJson(files_folder+'config.json', config_list)
+                                clear()
                                 break
-                            elif filename.find("obs.exe") != -1:
-                                f.write(filename)
-                                with open(files_folder+'obscorepath.txt', 'w', encoding="utf-8") as f:
-                                    f.write(filename[:-7])
-                                print(f'Сохранены пути для OBS:\nПриложение: {BRED}{filename}{RESET}\nКорневая папка: {BRED}{filename[:-7]}{RESET}')
-                                time.sleep(3)
-                                break
-                            else:
-                                easygui.msgbox("Неверный путь")
-                            break
-                        except:
-                            none = input('Вы не выбрали верный путь для OBS.\n\n > ')
-                            if os.path.exists(files_folder+"obscorepath.txt"):
-                                os.remove(files_folder+"obscorepath.txt")
-                            if os.path.exists(files_folder+"obspath.txt"):
-                                os.remove(files_folder+"obspath.txt")
-                            clear()
-                            break
+                    break
+                elif obs_choice.lower() in ['n', 'no', 'н', 'нет']:
+                    config_list["obs_exe"] = 'Disabled'
+                    config_list["obs_core"] = 'Disabled'
+                    saveJson(files_folder+'config.json', config_list)
+                    clear()
+                    break
+                else:
+                    clear()
+                    continue
                                 
         if not os.path.exists(files_folder+'telegram.conf'):
             clear()
-            tg_choice = input(f'Хотите использовать Telegram бота? {RESET}({BGREEN}Да{RESET}/{BRED}Нет{RESET}): ')
-            if tg_choice.lower() == 'д' or tg_choice.lower() == 'да' or tg_choice.lower() == 'y' or tg_choice.lower() == 'yes':
+            tg_choice = input(f'{RESET}Хотите использовать Telegram бота? {RESET}({BGREEN}Да{RESET}/{BRED}Нет{RESET}): ')
+            if tg_choice.lower() in ['y', 'yes', 'д', 'да']:
                 clear()
                 print(f'Пожалуйста, прочтите инструкцию по установке Telegram бота в {BRED}README.txt{RESET}')
                 print(f'или в документации/инструкции что в разделе {CYAN}Помощь{RESET} главного меню')
@@ -970,7 +1029,7 @@ def main(source='deamon'):
                         continue
                     telegram_send.send(messages=[f"🎊 Конфигурация правильна, всё работает!"], parse_mode="markdown", conf=f"{files_folder}telegram.conf")
                     clear()
-            elif tg_choice.lower() == 'н' or tg_choice.lower() == 'нет' or tg_choice.lower() == 'n' or tg_choice.lower() == 'no':
+            elif tg_choice.lower() in ['n', 'no', 'н', 'нет']:
                 with open(files_folder+'telegram.conf', 'w', encoding="utf-8") as f:
                     f.write('Not Configured')
         lessons_count = 0
@@ -1055,13 +1114,7 @@ def main(source='deamon'):
                                         
                                         if lesson_obs:
                                             try:
-                                                obs_path_file = open(files_folder+'obspath.txt', 'r', encoding="utf-8")
-                                                obs_path_file_text = obs_path_file.read()
-                                                
-                                                obs_core_path_file = open(files_folder+'obscorepath.txt', 'r', encoding="utf-8")
-                                                obs_core_path_file_text = obs_core_path_file.read()
-                                                
-                                                obs_process = subprocess.Popen(obs_path_file_text, cwd=obs_core_path_file_text)
+                                                obs_process = subprocess.Popen(getConfig("obs_exe"), cwd=getConfig("obs_core"))
                                                 time.sleep(5)
                                             except:
                                                 print(f'{nowtime()} Не удалось открыть OBS для записи.')
