@@ -30,7 +30,7 @@ import requests
 import keyboard
 from zipfile import ZipFile
 
-version = 1.5
+version = 1.6
 path = Path(__file__).resolve().parent
 
 def mainMenu():

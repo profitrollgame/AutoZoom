@@ -5,7 +5,7 @@ import os
 import sys
 from functions import *
 
-version = '1.5'
+version = '1.6'
 
 import libinstaller
 from pypresence import Presence
