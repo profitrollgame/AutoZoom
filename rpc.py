@@ -3,6 +3,7 @@
 import time
 import os
 import sys
+from colors import *
 from functions import *
 
 version = '1.6'
@@ -76,7 +77,7 @@ def onLesson(lesson, start):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(2)
 
-def inMenu():
+def inMenu(): 
     try:
         if getConfig("use_rpc"):
             if connected == False:

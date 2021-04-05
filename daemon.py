@@ -90,10 +90,12 @@ def getLessons():
     if not os.path.exists(files_folder+'lessons.json'):
         with open(files_folder+'lessons.json', 'w', encoding="utf-8") as f:
             f.write("[]")
+            f.close()
             lessons_list = []
     else:
         with open(files_folder+'lessons.json', encoding="utf-8") as json_file:
             lessons_list = json.load(json_file)
+            json_file.close()
             
     return lessons_list
 
@@ -528,6 +530,7 @@ def removeAllLessons():
             if removeall.lower() in ['y', 'yes', 'д', 'да']:
                 with open(files_folder+'lessons.json', 'w', encoding="utf-8") as f:
                     f.write("[]")
+                    f.close()
                 clear()
                 none = input('Все уроки были удалены.\n\n > ')
                 clear()
@@ -726,6 +729,7 @@ def settings():
             if settings_choose == '1':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
+                    json_file.close()
                     
                 config_list["debug"] = not getConfig("debug")
                 saveJson(files_folder+'config.json', config_list)
@@ -735,6 +739,7 @@ def settings():
             elif settings_choose == '2':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
+                    json_file.close()
                     
                 config_list["use_colors"] = not getConfig("use_colors")
                 saveJson(files_folder+'config.json', config_list)
@@ -744,6 +749,7 @@ def settings():
             elif settings_choose == '3':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
+                    json_file.close()
                 
                 config_list["run_fullscreen"] = not getConfig("run_fullscreen")
                 saveJson(files_folder+'config.json', config_list)
@@ -754,6 +760,7 @@ def settings():
             elif settings_choose == '4':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
+                    json_file.close()
                 
                 config_list["sounds"] = not getConfig("sounds")
                 saveJson(files_folder+'config.json', config_list)
@@ -764,6 +771,7 @@ def settings():
             elif settings_choose == '5':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
+                    json_file.close()
                 
                 if getConfig("obs_core") and getConfig("obs_exe") not in [None, 'Disabled']:
                     config_list["obs_core"] = 'Disabled'
@@ -819,6 +827,7 @@ def settings():
             elif settings_choose == '6':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
+                    json_file.close()
                     
                 config_list["shutdown_enabled"] = not getConfig("shutdown_enabled")
                 saveJson(files_folder+'config.json', config_list)
@@ -828,6 +837,7 @@ def settings():
             elif settings_choose == '7':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
+                    json_file.close()
                 
                 try:
                     clear()
@@ -844,6 +854,7 @@ def settings():
             elif settings_choose == '8':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
+                    json_file.close()
                 
                 try:
                     clear()
@@ -860,6 +871,7 @@ def settings():
             elif settings_choose == '9':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
+                    json_file.close()
                 
                 try:
                     clear()
@@ -876,6 +888,7 @@ def settings():
             elif settings_choose == '10':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
+                    json_file.close()
                     
                 config_list["telegram_enabled"] = not getConfig("telegram_enabled")
                 saveJson(files_folder+'config.json', config_list)
@@ -946,6 +959,21 @@ def settings():
         return
 
 def main(source='deamon'):
+
+    ##########################################
+
+    # Возможность профилей сделана для себя
+    # и не планируется как фича, однако
+    # вы можете присобачить сюда что хотите.
+    
+    try:
+        from profile import profilename
+    except:
+        profilename = ''
+        pass
+        
+    ##########################################
+
     try:
         import time
         from main import mainMenu
@@ -962,6 +990,7 @@ def main(source='deamon'):
                 if obs_choice.lower() in ['y', 'yes', 'д', 'да']:
                     with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                         config_list = json.load(json_file)
+                        json_file.close()
                         while True:
                             try:
                                 filename = easygui.fileopenbox('Выберите путь до obs32.exe или obs64.exe')
@@ -999,9 +1028,13 @@ def main(source='deamon'):
                                 break
                     break
                 elif obs_choice.lower() in ['n', 'no', 'н', 'нет']:
-                    config_list["obs_exe"] = 'Disabled'
-                    config_list["obs_core"] = 'Disabled'
-                    saveJson(files_folder+'config.json', config_list)
+                    with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
+                        config_list = json.load(json_file)
+                        config_list["obs_exe"] = 'Disabled'
+                        config_list["obs_core"] = 'Disabled'
+                        saveJson(files_folder+'config.json', config_list)
+                        json_file.close()
+                        
                     clear()
                     break
                 else:
@@ -1032,6 +1065,7 @@ def main(source='deamon'):
             elif tg_choice.lower() in ['n', 'no', 'н', 'нет']:
                 with open(files_folder+'telegram.conf', 'w', encoding="utf-8") as f:
                     f.write('Not Configured')
+                    f.close()
         lessons_count = 0
         
         try:
@@ -1108,7 +1142,7 @@ def main(source='deamon'):
                                         print(f'{nowtime()} Захвачен текущий урок в Zoom.')
                                         
                                         playSound("started")
-                                        tgsend(getConfig("telegram_enabled"), f"▶ Зашёл на урок *{lesson_name}* в *{nowtime(False, False, False)}*")
+                                        tgsend(getConfig("telegram_enabled"), f"▶ Зашёл на урок *{lesson_name}* в *{nowtime(False, False, False)}* {profilename}")
                                         
                                         rpc.onLesson(lesson_name, start_time_unix)
                                         
@@ -1203,7 +1237,7 @@ def main(source='deamon'):
             if getConfig("shutdown_enabled"):
                 if getConfig("end_mode") == 'shutdown':
                     try:
-                        tgsend(getConfig("telegram_enabled"), f"⚠ Уроки кончились, автовыключение через {nowtime(False, False, False)} мин...")
+                        tgsend(getConfig("telegram_enabled"), f"⚠ Уроки кончились, автовыключение {profilename}через {nowtime(False, False, False)} мин...")
                         print(f'{nowtime()} Ваш ПК автоматически выключится через {BRED}{str(getConfig("shutdown_timeout"))} мин{RESET}.')
                         playSound("shutdown")
                         end_unix = int(time.time())+getConfig("shutdown_timeout")*60

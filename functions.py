@@ -34,6 +34,7 @@ def getConfig(some_var):
             try:
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
+                    json_file.close()
                     return config_list[some_var]
             except:
                 return "Error"
@@ -60,6 +61,7 @@ def getConfig(some_var):
             try:
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
+                    json_file.close()
                     return config_list[some_var]
             except:
                 return "Error"
@@ -69,3 +71,4 @@ def getConfig(some_var):
 def saveJson(filename, value):
     with open(filename, 'w', encoding="utf-8") as f:
         json.dump(value, f, indent=4, ensure_ascii=False)
+        f.close()
