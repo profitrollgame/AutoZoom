@@ -62,6 +62,11 @@ except ModuleNotFoundError:
     libs.append("requests")
 ###################################
 try:
+    import playsound
+except ModuleNotFoundError:
+    libs.append("playsound")
+###################################
+try:
     from zipfile import ZipFile
 except ModuleNotFoundError:
     libs.append("zipfile")
@@ -102,6 +107,7 @@ if len(libs) > 0:
         import telegram_send
         import wget
         import requests
+        import playsound
         import asyncio
         from zipfile import ZipFile
         from pypresence import Presence

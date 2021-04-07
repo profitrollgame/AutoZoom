@@ -6,7 +6,7 @@ import sys
 from colors import *
 from functions import *
 
-version = '1.6'
+version = '1.8'
 
 import libinstaller
 from pypresence import Presence
@@ -27,6 +27,8 @@ else:
     connected = False
 
 def disconnect():
+    global connected
+    
     if getConfig("use_rpc"):
         try:
             RPC.close()
@@ -35,6 +37,8 @@ def disconnect():
             pass
 
 def connect():
+    global connected
+    
     try:
         RPC.connect()
         connected = True
@@ -56,11 +60,11 @@ def waitLesson(lesson, start):
     except AttributeError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
     except AssertionError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
 
 def onLesson(lesson, start):
     try:
@@ -71,11 +75,11 @@ def onLesson(lesson, start):
     except AttributeError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
     except AssertionError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
 
 def inMenu(): 
     try:
@@ -86,11 +90,11 @@ def inMenu():
     except AttributeError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
     except AssertionError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
 
 def shutdown(end):
     try:
@@ -101,11 +105,11 @@ def shutdown(end):
     except AttributeError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
     except AssertionError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
 
 def inSettings():
     try:
@@ -116,11 +120,11 @@ def inSettings():
     except AttributeError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
     except AssertionError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
 
 def inEditor():
     try:
@@ -131,11 +135,11 @@ def inEditor():
     except AttributeError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
     except AssertionError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
 
 def inUpdater():
     try:
@@ -146,11 +150,11 @@ def inUpdater():
     except AttributeError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
     except AssertionError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
 
 def inHelp():
     try:
@@ -161,11 +165,11 @@ def inHelp():
     except AttributeError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
     except AssertionError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
 
 
 
@@ -176,7 +180,7 @@ if __name__ == "__main__":
     except AttributeError:
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(2)
+            time.sleep(1)
 
 
 ################################################################################
@@ -250,7 +254,7 @@ if __name__ == "__main__":
         # )
 
         # discord_rpc.update_connection()
-        # time.sleep(2)
+        # time.sleep(1)
         # discord_rpc.run_callbacks()
 
     # discord_rpc.shutdown()

@@ -10,7 +10,6 @@ import pathlib
 import json
 import getopt
 import sys
-import winsound
 from random import randint
 from pathlib import Path
 from datetime import datetime, date, timedelta
@@ -29,6 +28,11 @@ if os.name == 'nt':
     clear = lambda: os.system('cls')
 else:
     clear = lambda: os.system('clear')
+
+if os.name == 'nt':
+    import winsound
+else:
+    import playsound
 
 clear()
 os.system("title Загрузка daemon...")
@@ -100,11 +104,18 @@ def getLessons():
     return lessons_list
 
 def getState():
-    output = os.popen('wmic process get description, processid').read()
-    if "CptHost.exe" in output:
-        return True
-    else:
-        return False
+    if os.system == 'nt':
+        output = os.popen('wmic process get description, processid').read()
+        if "CptHost.exe" in output:
+            return True
+        else:
+            return False
+            
+    ### KODIL TUT
+    
+    #else:
+        #check_result = subprocess.check_output('ps -efww', shell=True)
+        #if
 
 def listLessons(from_where='remove'):
     try:
@@ -243,7 +254,15 @@ def addLesson():
                 continue
         
         clear()
-        lesslink = input(f'{RESET}Введите ссылку на конференцию:\n\n > {BRED}')
+        lesslink = input(f'{RESET}Введите ссылку на конференцию:\n{BBLACK}Формат: {BRED}https://us01web.zoom.us/j/ИДЕНТИФИКАТОР?pwd=ПАРОЛЬ{RESET}\n{BBLACK}Либо введите {YELLOW}1 {BBLACK}для добавления по номеру и паролю{RESET}\n\n > {BRED}')
+
+        if lesslink.replace(' ', '') == '1':
+            clear()
+            lessid = input(f'{RESET}Введите идентификатор конференции:\n{BBLACK}Формат: {BRED}012 3456 7890 {BBLACK} либо {BRED}01234567890{RESET}\n\n > {BRED}')
+            clear()
+            lesspasswd = input(f'{RESET}Введите код доступа (пароль) конференции:\n\n > {BRED}')
+            lesslink = f'https://us01web.zoom.us/j/{lessid.replace(" ", "")}?pwd={lesspasswd.replace(" ", "")}'
+
         local_lessons.update({"link": lesslink})
         
         while True:
@@ -407,10 +426,18 @@ def editLesson():
                 continue
         
         clear()
-        lesslink = input(f'{RESET}Введите ссылку на конференцию\n\nОригинальная ссылка: {BRED}{lessons_got[edi]["link"]}{RESET}\n\n > {BRED}')
-        
+        lesslink = input(f'{RESET}Введите ссылку на конференцию:\n{BBLACK}Формат: {BRED}https://us01web.zoom.us/j/ИДЕНТИФИКАТОР?pwd=ПАРОЛЬ{RESET}\n{BBLACK}Либо введите {YELLOW}1 {BBLACK}для добавления по номеру и паролю{RESET}\n\n > {BRED}')
+
+        if lesslink.replace(' ', '') == '1':
+            clear()
+            lessid = input(f'{RESET}Введите идентификатор конференции:\n{BBLACK}Формат: {BRED}012 3456 7890 {BBLACK} либо {BRED}01234567890{RESET}\n\n > {BRED}')
+            clear()
+            lesspasswd = input(f'{RESET}Введите код доступа (пароль) конференции:\n\n > {BRED}')
+            lesslink = f'https://us01web.zoom.us/j/{lessid.replace(" ", "")}?pwd={lesspasswd.replace(" ", "")}'
+            
         if lesslink == '':
             lesslink = lessons_got[edi]["link"]
+            
         local_lessons.update({"link": lesslink})
         
         while True:
@@ -595,11 +622,18 @@ def tgsend(enabled, message):
             tg_file = open(files_folder+'telegram.conf', 'r', encoding="utf-8")
             tg_text = tg_file.read()
             if tg_text != 'Not Configured':
-                telegram_send.send(messages=[f"{message}"], parse_mode="markdown", conf=files_folder+"telegram.conf")
+                try:
+                    telegram_send.send(messages=[f"{message}"], parse_mode="markdown", conf=files_folder+"telegram.conf")
+                except as Exception:
+                    print(f'{nowtime()} Не удалось отправить Telegram сообщение "{message}" (Ошибка: {Exception})')
 
 def playSound(soundname):
     if getConfig("sounds"):
-        winsound.PlaySound(sounds_folder+soundname+".wav", winsound.SND_FILENAME)
+    
+        if os.name == 'nt':
+            winsound.PlaySound(sounds_folder+soundname+".wav", winsound.SND_FILENAME)
+        else:
+            playsound.playsound(sounds_folder+soundname+".wav")
 
 def settings():
     try:
@@ -1101,17 +1135,61 @@ def main(source='deamon'):
                     rpc.waitLesson(lesson_name, waiting_time_unix)
                     
                     waitStart(lesson_time, lambda: act(100))
-                    webbrowser.open(lesson_url)
+                    
+                    try:
+                        if os.name == 'nt':
+                            i = 0
+                            
+                            while i < 10:
+                                lesson_url = lesson_url.replace(f"https://us0{i}web.zoom.us/j/", "zoommtg://zoom.us/join?action=join&confno=")
+                                i += 1
+                                
+                            lesson_url = lesson_url.replace("&", "^&")
+                            lesson_url = lesson_url.replace("?pwd", "^&pwd")
+                            
+                            if getConfig("debug"):
+                                print(lesson_url)
+                            
+                            os.system(f'start {lesson_url}')
+                        else:
+                            i = 0
+                            
+                            while i < 10:
+                                lesson_url = lesson_url.replace(f"https://us0{i}web.zoom.us/j/", "zoommtg://zoom.us/join?action=join&confno=")
+                                i += 1
+                            
+                            lesson_url = lesson_url.replace("?pwd=", "&pwd=")
+                            
+                            if getConfig("debug"):
+                                print(lesson_url)
+                                
+                            os.system(f'xdg-open "{lesson_url}"')
+                    except:
+                        try:
+                            webbrowser.open(lesson_url)
+                        except:
+                            print(f'{nowtime()} Открыть урок {CYAN}{lesson_name}{RESET} не удалось ни напрямую, ни в браузере.')
+                    
                     easteregg_number = randint(1, 100000)
                     if easteregg_number == 69420:
                         webbrowser.open('https://www.pornhub.com/view_video.php?viewkey=ph5f3eb1e206aa8')
                     print(f'{nowtime()} Ждём {BRED}10 секунд{RESET} до отслеживания Zoom...')
                     time.sleep(10)
                     
+                    retries = 0
+                    
                     while not getState():
                         if getConfig("debug"):
                             print(f'{nowtime()} Урок задерживается, ждём...')
                         time.sleep(5)
+                        retries += 1
+                        
+                        if retries == 36:
+                            tgsend(getConfig("telegram_enabled"), f"⚠ Задержка урока *{lesson_name}* превысила 3 минуты {profilename}")
+                            
+                        if retries == 120:
+                            tgsend(getConfig("telegram_enabled"), f"⚠ Задержка урока *{lesson_name}* превысила 10 минут {profilename}")
+                        
                         continue
                     
                     record_now = False 
@@ -1237,7 +1315,7 @@ def main(source='deamon'):
             if getConfig("shutdown_enabled"):
                 if getConfig("end_mode") == 'shutdown':
                     try:
-                        tgsend(getConfig("telegram_enabled"), f"⚠ Уроки кончились, автовыключение {profilename}через {nowtime(False, False, False)} мин...")
+                        tgsend(getConfig("telegram_enabled"), f"⚠ Уроки кончились, автовыключение {profilename}через {str(getConfig('shutdown_timeout'))} мин...")
                         print(f'{nowtime()} Ваш ПК автоматически выключится через {BRED}{str(getConfig("shutdown_timeout"))} мин{RESET}.')
                         playSound("shutdown")
                         end_unix = int(time.time())+getConfig("shutdown_timeout")*60
