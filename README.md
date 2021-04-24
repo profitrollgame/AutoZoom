@@ -1,6 +1,5 @@
 ## Добро пожаловать в AutoZoom!
 
-Contact me [directly](https://t.me/profitroll) or via [Support Center](https://www.tidio.com/talk/ydqcvfvgkud3jjk2482uaesvjpeohlh3) if you need English translation.  
 В этом файле описаны все шаги которые нужно выполнить для работы с программой.
 
 ### Содержание
@@ -13,7 +12,6 @@ Contact me [directly](https://t.me/profitroll) or via [Support Center](https://w
 * [GitHub вики проекта](https://github.com/profitrollgame/autozoom/wiki)
 * [Обратная связь и предложения](https://t.me/profitroll)
 * [Сообщить об ошибке/баге](https://github.com/profitrollgame/autozoom/issues)
-* [Центр поддержки](https://www.tidio.com/talk/ydqcvfvgkud3jjk2482uaesvjpeohlh3)
 
 ### 1. Информация и описание программы
 

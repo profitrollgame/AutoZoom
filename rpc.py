@@ -6,7 +6,7 @@ import sys
 from colors import *
 from functions import *
 
-version = '1.8'
+version = '2.0'
 
 import libinstaller
 from pypresence import Presence
@@ -33,8 +33,9 @@ def disconnect():
         try:
             RPC.close()
             connected = False
+            appendLog('Discord RPC disconnected')
         except:
-            pass
+            appendLog('Discord RPC failed to disconnect')
 
 def connect():
     global connected
@@ -42,12 +43,14 @@ def connect():
     try:
         RPC.connect()
         connected = True
+        appendLog('Discord RPC connected')
     except:
-        pass
+        appendLog('Discord RPC failed to connect')
 
 def reset():
     if getConfig("use_rpc"):
         RPC.clear()
+        appendLog('Discord RPC status cleared')
 
 
 
@@ -56,12 +59,15 @@ def waitLesson(lesson, start):
         if getConfig("use_rpc"):
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_waiting', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Ожидание', state=f'Ждём начала «{lesson}»', details='Урок не начался', start=start)
+            RPC.update(large_image='1024_cover', small_image='status_waiting', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Ожидание', state=f'Ждём начала «{lesson}»', details='Конференция не началась', start=start)
+        appendLog(f'Discord RPC changed to waitLesson (Lesson: {lesson}, Start: {start})')
     except AttributeError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
     except AssertionError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
@@ -71,12 +77,15 @@ def onLesson(lesson, start):
         if getConfig("use_rpc"):
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_lesson', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Урок', state=f'Слушаем «{lesson}»', details='Идёт урок', start=start)
+            RPC.update(large_image='1024_cover', small_image='status_lesson', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Конференция', state=f'Слушаем «{lesson}»', details='Идёт конференция', start=start)
+        appendLog(f'Discord RPC changed to onLesson (Lesson: {lesson}, Start: {start})')
     except AttributeError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
     except AssertionError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
@@ -87,11 +96,14 @@ def inMenu():
             if connected == False:
                 connect()
             RPC.update(large_image='1024_cover', small_image='status_menu', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Главное меню', state='Открыт список опций', details='В главном меню')
+        appendLog('Discord RPC changed to inMenu')
     except AttributeError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
     except AssertionError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
@@ -102,11 +114,14 @@ def shutdown(end):
             if connected == False:
                 connect()
             RPC.update(large_image='1024_cover', small_image='status_shutdown', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Выключение', state='Отсчёт до авто-выключения', details='Выключение ПК', end=end)
+        appendLog(f'Discord RPC changed to shutdown (End: {end})')
     except AttributeError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
     except AssertionError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
@@ -117,11 +132,14 @@ def inSettings():
             if connected == False:
                 connect()
             RPC.update(large_image='1024_cover', small_image='status_settings', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Настройки', state='Открыты настройки', details='В главном меню')
+        appendLog('Discord RPC changed to inSettings')
     except AttributeError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
     except AssertionError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
@@ -132,11 +150,14 @@ def inEditor():
             if connected == False:
                 connect()
             RPC.update(large_image='1024_cover', small_image='status_editing', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Редактор', state='Открыт редактор', details='В главном меню')
+        appendLog('Discord RPC changed to inEditor')
     except AttributeError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
     except AssertionError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
@@ -147,11 +168,14 @@ def inUpdater():
             if connected == False:
                 connect()
             RPC.update(large_image='1024_cover', small_image='status_updating', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Обновление', state='Открыт центр обновлений', details='В главном меню')
+        appendLog('Discord RPC changed to inUpdater')
     except AttributeError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
     except AssertionError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
@@ -162,134 +186,44 @@ def inHelp():
             if connected == False:
                 connect()
             RPC.update(large_image='1024_cover', small_image='status_support', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Помощь', state='Открыта помощь', details='В главном меню')
+        appendLog('Discord RPC changed to inHelp')
     except AttributeError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
     except AssertionError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
 
+def lessonEnded():
+    try:
+        if getConfig("use_rpc"):
+            if connected == False:
+                connect()
+            RPC.update(large_image='1024_cover', small_image='status_waiting', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Ожидание', state=f'Ждём указаний', details='Все конференции закончились')
+        appendLog('Discord RPC changed to lessonEnded')
+    except AttributeError:
+        appendLog('Discord RPC failed to change status')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
+            time.sleep(1)
+    except AssertionError:
+        appendLog('Discord RPC failed to change status')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
+            time.sleep(1)
 
 
 if __name__ == "__main__":
     try:
         RPC.connect()
         RPC.update(large_image='1024_cover', small_image='status_settings', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Отладка', state='Модуль Discord RPC запущен в режиме тестирования', details='Режим отладки')
+        appendLog('Discord RPC changed to debug')
     except AttributeError:
+        appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
-
-
-################################################################################
-# Неудачная попытка работы с discord_rpc. Потом, быть может, попробую ещё раз. #
-################################################################################
-
-# import discord_rpc
-# import time
-
-# if __name__ == "__main__":
-    # def readyCallback(current_user):
-        # print('Our user: {}'.format(current_user))
-
-    # def disconnectedCallback(codeno, codemsg):
-        # print('Disconnected from Discord rich presence RPC. Code {}: {}'.format(
-            # codeno, codemsg
-        # ))
-
-    # def errorCallback(errno, errmsg):
-        # print('An error occurred! Error {}: {}'.format(
-            # errno, errmsg
-        # ))
-
-# # Note: 'event_name': callback
-    # callbacks = {
-        # 'ready': readyCallback,
-        # 'disconnected': disconnectedCallback,
-        # 'error': errorCallback,
-    # }
-
-# # if __name__ != "__main__":
-    # discord_rpc.initialize('800049969960058882', callbacks=callbacks, log=False)
-    # none = input('init')
-    
-    # i = 0
-    
-    # while i < 10:
-        # discord_rpc.update_presence(
-            # **{
-                # 'state': f'Загрузка...',
-                # 'details': 'Загрузка...',
-                # #'start_timestamp': start,
-                # 'large_image_key': '1024_cover',
-                # 'small_image_key': 'status_waiting',
-                # 'large_image_text': f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom',
-                # 'small_image_text': 'Ожидание',
-            # }
-        # )
-        # discord_rpc.update_connection()
-        # time.sleep(3)
-        # discord_rpc.run_callbacks()
-        # i += 1
-
-    # i = 0
-    # start = time.time()
-    # while i < 10:
-        # i += 1
-
-    #large_image='1024_cover', small_image='status_waiting', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Ожидание', state=f'Ждём начала «{lesson}»', details='Урок не начался', start=start
-
-        # discord_rpc.update_presence(
-            # **{
-                # 'state': f'Ждём начала «lesson»',
-                # 'details': 'Урок не начался',
-                # 'start_timestamp': start,
-                # 'large_image_key': '1024_cover',
-                # 'small_image_key': 'status_waiting',
-                # 'large_image_text': f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom',
-                # 'small_image_text': 'Ожидание',
-            # }
-        # )
-
-        # discord_rpc.update_connection()
-        # time.sleep(1)
-        # discord_rpc.run_callbacks()
-
-    # discord_rpc.shutdown()
-
-
-    # def disconnect():
-        # if getConfig("use_rpc"):
-            # discord_rpc.shutdown()
-
-
-    # def inMenu():
-        # if getConfig("use_rpc"):
-            # discord_rpc.update_presence(
-                # **{
-                    # 'state': f'Ждём начала «lesson»',
-                    # 'details': 'Урок не начался',
-                    # #'start_timestamp': start,
-                    # 'large_image_key': '1024_cover',
-                    # 'small_image_key': 'status_waiting',
-                    # 'large_image_text': f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom',
-                    # 'small_image_text': 'Ожидание',
-                # }
-            # )
-            # discord_rpc.update_connection()
-
-# def waitLesson(lesson, start):
-    # if getConfig("use_rpc"):
-        # discord_rpc.update_presence(
-            # **{
-                # 'state': f'Ждём начала «lesson»',
-                # 'details': 'Урок не начался',
-                # 'start_timestamp': start,
-                # 'large_image_key': '1024_cover',
-                # 'small_image_key': 'status_waiting',
-                # 'large_image_text': f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom',
-                # 'small_image_text': 'Ожидание',
-            # }
-        # )

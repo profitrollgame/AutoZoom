@@ -1,0 +1,12 @@
+easygui
+tkinter
+keyboard
+ast
+inputimeout
+telegram_send
+wget
+requests
+playsound
+asyncio
+zipfile
+pypresence

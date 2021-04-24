@@ -18,11 +18,13 @@ from functions import *
 
 if getConfig("use_colors"):
     from colors import *
+    appendLog('Colors imported')
 else:
     RESET = ''
     BLACK = RED = GREEN = YELLOW = BLUE = MAGENTA = CYAN = WHITE = ''
     BBLACK = BRED = BGREEN = BYELLOW = BBLUE = BMAGENTA = BCYAN = BWHITE = ''
     ULINE = REVERSE = ''
+    appendLog('Loading without colors')
 
 if os.name == 'nt':
     clear = lambda: os.system('cls')
@@ -36,6 +38,7 @@ else:
 
 clear()
 os.system("title Загрузка daemon...")
+appendLog('Loading daemon')
 
 import libinstaller
 
@@ -45,13 +48,16 @@ import keyboard
 import ast
 import inputimeout
 import telegram_send
+import getpass
 
 
 menu_choose = None
 
 try:
     from inputimeout import inputimeout, TimeoutOccurred
-except:
+    appendLog('inputimeout imported')
+except Exception as exp:
+    appendLog(f'Failed to import inputimeout: {exp}')
     print(f'[{YELLOW}WARN{RESET}] Не удалось импортировать классы "inputimeout" и "TimeoutOccurred" из модуля "inputimeout"')
 
 def nowtime(seconds=True, noice=True, color=True):
@@ -84,6 +90,7 @@ def waitStart(runTime, action):
     startTime = time(*(map(int, runTime.split(':'))))
     while startTime > datetime.today().time():
         sleep(2)
+        
     return action
 
 def getPair(line):
@@ -92,33 +99,50 @@ def getPair(line):
 
 def getLessons():
     if not os.path.exists(files_folder+'lessons.json'):
+        appendLog('File lessons.json does not exist')
         with open(files_folder+'lessons.json', 'w', encoding="utf-8") as f:
             f.write("[]")
             f.close()
             lessons_list = []
+            
+        appendLog(f'Created lessons.json')
     else:
         with open(files_folder+'lessons.json', encoding="utf-8") as json_file:
             lessons_list = json.load(json_file)
             json_file.close()
             
+        appendLog('File lessons.json loaded')
+            
     return lessons_list
 
 def getState():
-    if os.system == 'nt':
-        output = os.popen('wmic process get description, processid').read()
-        if "CptHost.exe" in output:
-            return True
-        else:
-            return False
-            
-    ### KODIL TUT
+
+    if os.name == 'nt':
     
-    #else:
-        #check_result = subprocess.check_output('ps -efww', shell=True)
-        #if
+        try:
+            output = os.popen(f'tasklist /fi "IMAGENAME eq CptHost.exe" /fi "USERNAME ne NT AUTHORITY\{getpass.getuser()}"').read()
+            
+            if "CptHost.exe" in output:
+                return True
+            else:
+                return False
+                    
+        except Exception as exp:
+            appendLog(f'Failed to get state using tasklist: {exp}')
+            
+            output = os.popen('wmic process get description, processid').read()
+            
+            if "CptHost.exe" in output:
+                return True
+            else:
+                return False
 
 def listLessons(from_where='remove'):
+
     try:
+    
+        appendLog('Showing list of everything planned')
+    
         if from_where == 'editor':
             print(f'{RESET}Полный список запланированных конференций:\n')
 
@@ -157,6 +181,7 @@ def listLessons(from_where='remove'):
 
         if from_where == 'editor':
             none = input('\n\n > ')
+            
     except KeyboardInterrupt:
         clear()
         return
@@ -164,7 +189,8 @@ def listLessons(from_where='remove'):
 def sortLessons(dictionary):
     dictionary.sort(key = lambda x: datetime.strptime(x['time'], '%H:%M'))
     dictionary.sort(key = lambda x: datetime.strptime(x['date'], '%d.%m.%Y')) 
-
+    appendLog('Lessons dictionary sorted')
+    
 def getDayNum(day):
     output = datetime.strptime(day, "%d.%m.%Y").isoweekday()
     return output
@@ -186,11 +212,13 @@ def getDay(number):
         return 'Воскресенье'
 
 def addLesson():
+    appendLog('Adding new lesson')
+    
     try:
         local_lessons = {}
         lessons_got = getLessons()
 
-        lessname = input(f'{RESET}Введите (своё) имя конференции:\n\n > {CYAN}')
+        lessname = input(f'{RESET}Введите (своё) имя конференции:\n{BBLACK}Нужно лишь для отображения в Discord и самом AutoZoom{RESET}\n\n > {CYAN}')
         local_lessons.update({"name": lessname})
         
         while True:
@@ -203,7 +231,7 @@ def addLesson():
             today_5 = date.today() + timedelta(days=5)
             today_6 = date.today() + timedelta(days=6)
             
-            print(f'{RESET}Введите дату урока или номер дня ({BRED}ДД.ММ.ГГГГ{RESET}):\n')
+            print(f'{RESET}Введите дату конференции или номер дня ({BRED}ДД.ММ.ГГГГ{RESET}):\n')
             print(f' {BRED}1.{RESET} {today.strftime("%d.%m.%Y")} ({BGREEN}{getDay(datetime.strptime(today.strftime("%d.%m.%Y"), "%d.%m.%Y").isoweekday())}{RESET})')
             print(f' {BRED}2.{RESET} {today_1.strftime("%d.%m.%Y")} ({BGREEN}{getDay(datetime.strptime(today_1.strftime("%d.%m.%Y"), "%d.%m.%Y").isoweekday())}{RESET})')
             print(f' {BRED}3.{RESET} {today_2.strftime("%d.%m.%Y")} ({BGREEN}{getDay(datetime.strptime(today_2.strftime("%d.%m.%Y"), "%d.%m.%Y").isoweekday())}{RESET})')
@@ -254,7 +282,7 @@ def addLesson():
                 continue
         
         clear()
-        lesslink = input(f'{RESET}Введите ссылку на конференцию:\n{BBLACK}Формат: {BRED}https://us01web.zoom.us/j/ИДЕНТИФИКАТОР?pwd=ПАРОЛЬ{RESET}\n{BBLACK}Либо введите {YELLOW}1 {BBLACK}для добавления по номеру и паролю{RESET}\n\n > {BRED}')
+        lesslink = input(f'{RESET}Введите ссылку на конференцию:\n{BBLACK}Формат: {BRED}https://us01web.zoom.us/j/ИДЕНТИФИКАТОР?pwd=ПАРОЛЬ{RESET}\n{BBLACK}Либо введите {YELLOW}1 {BBLACK}для добавления по номеру и паролю{RESET}\n\n > {BRED}').replace(" ", "")
 
         if lesslink.replace(' ', '') == '1':
             clear()
@@ -305,14 +333,19 @@ def addLesson():
         saveJson(files_folder+'lessons.json', lessons_got)
         
         clear()
-        print(f'Добавлен урок {CYAN}{local_lessons["name"]}{RESET} за {BRED}{local_lessons["date"]}{RESET} на время {BRED}{local_lessons["time"]}{RESET}.')
+        print(f'Добавлена конференция {CYAN}{local_lessons["name"]}{RESET} за {BRED}{local_lessons["date"]}{RESET} на время {BRED}{local_lessons["time"]}{RESET}.')
+        appendLog(f'Added lesson {local_lessons["name"]} (Date: {local_lessons["date"]}, Time: {local_lessons["time"]}, Link: {local_lessons["link"]})')
         none = input('\n > ')
+        
     except KeyboardInterrupt:
+        appendLog('Lesson adding aborted')
         clear()
         return
     
 
 def editLesson():
+    appendLog(f'Editing existing lesson')
+    
     try:
         local_lessons = {}
         lessons_got = getLessons()
@@ -349,7 +382,7 @@ def editLesson():
             break
 
         clear()
-        lessname = input(f'{RESET}Введите (своё) имя конференции:\n\nОригинальное имя: {CYAN}{lessons_got[edi]["name"]}{RESET}\n\n > {CYAN}')
+        lessname = input(f'{RESET}Введите (своё) имя конференции:\n{BBLACK}Нужно лишь для отображения в Discord и самом AutoZoom{RESET}\n\nОригинальное имя: {CYAN}{lessons_got[edi]["name"]}{RESET}\n\n > {CYAN}')
         if lessname == '':
             lessname = lessons_got[edi]["name"]
         local_lessons.update({"name": lessname})
@@ -364,7 +397,7 @@ def editLesson():
             today_5 = date.today() + timedelta(days=5)
             today_6 = date.today() + timedelta(days=6)
             
-            print(f'{RESET}Введите дату урока или номер дня ({BRED}ДД.ММ.ГГГГ{RESET}):\n')
+            print(f'{RESET}Введите дату конференции или номер дня ({BRED}ДД.ММ.ГГГГ{RESET}):\n')
             print(f' {BRED}1.{RESET} {today.strftime("%d.%m.%Y")} ({BGREEN}{getDay(datetime.strptime(today.strftime("%d.%m.%Y"), "%d.%m.%Y").isoweekday())}{RESET})')
             print(f' {BRED}2.{RESET} {today_1.strftime("%d.%m.%Y")} ({BGREEN}{getDay(datetime.strptime(today_1.strftime("%d.%m.%Y"), "%d.%m.%Y").isoweekday())}{RESET})')
             print(f' {BRED}3.{RESET} {today_2.strftime("%d.%m.%Y")} ({BGREEN}{getDay(datetime.strptime(today_2.strftime("%d.%m.%Y"), "%d.%m.%Y").isoweekday())}{RESET})')
@@ -426,7 +459,7 @@ def editLesson():
                 continue
         
         clear()
-        lesslink = input(f'{RESET}Введите ссылку на конференцию:\n{BBLACK}Формат: {BRED}https://us01web.zoom.us/j/ИДЕНТИФИКАТОР?pwd=ПАРОЛЬ{RESET}\n{BBLACK}Либо введите {YELLOW}1 {BBLACK}для добавления по номеру и паролю{RESET}\n\n > {BRED}')
+        lesslink = input(f'{RESET}Введите ссылку на конференцию:\n{BBLACK}Формат: {BRED}https://us01web.zoom.us/j/ИДЕНТИФИКАТОР?pwd=ПАРОЛЬ{RESET}\n{BBLACK}Либо введите {YELLOW}1 {BBLACK}для добавления по номеру и паролю{RESET}\n\n > {BRED}').replace(" ", "")
 
         if lesslink.replace(' ', '') == '1':
             clear()
@@ -499,14 +532,19 @@ def editLesson():
         sortLessons(lessons_got)
         saveJson(files_folder+'lessons.json', lessons_got)
         clear()
-        print(f'Изменён урок {CYAN}{lessname}{RESET} за {BRED}{finallessdate}{RESET} на время {BRED}{finallesstime}{RESET}.')
+        print(f'Изменена конференция {CYAN}{lessname}{RESET} за {BRED}{finallessdate}{RESET} на время {BRED}{finallesstime}{RESET}.')
+        appendLog(f'Edited lesson {lessname} (Date: {finallessdate}, Time: {finallesstime}, Link: {local_lessons["link"]})')
         none = input('\n > ')
+        
     except KeyboardInterrupt:
+        appendLog('Editing existing lesson aborted')
         clear()
         return
     
 
 def removeLesson():
+    appendLog(f'Removing existing lesson')
+    
     try:
         while True:
             print(f'{RESET}Выберите номер (индекс) для удаления:\n')
@@ -541,14 +579,18 @@ def removeLesson():
             sortLessons(lessons_local)
             saveJson(files_folder+'lessons.json', lessons_local)
             clear()
-            print(f'{RESET}Удалён урок {CYAN}{del_name}{RESET} за {BRED}{del_date}{RESET} на время {BRED}{del_time}{RESET}.')
+            print(f'{RESET}Удалена конференция {CYAN}{del_name}{RESET} за {BRED}{del_date}{RESET} на время {BRED}{del_time}{RESET}.')
+            appendLog(f'Removed lesson {del_name} (Date: {del_date}, Time: {del_time})')
             none = input('\n > ')
             break
     except KeyboardInterrupt:
+        appendLog('Lesson removal aborted')
         clear()
         return
 
 def removeAllLessons():
+    appendLog('Removing all lessons')
+    
     try:
         while True:
             clear()
@@ -558,16 +600,22 @@ def removeAllLessons():
                 with open(files_folder+'lessons.json', 'w', encoding="utf-8") as f:
                     f.write("[]")
                     f.close()
+                    
+                appendLog('All lessons removed')
                 clear()
-                none = input('Все уроки были удалены.\n\n > ')
+                none = input('Все конференции были удалены.\n\n > ')
                 clear()
                 break
             elif removeall.lower() in ['n', 'no', 'н', 'нет']:
+                appendLog('All lessons removal aborted')
                 clear()
                 break
             else:
                 continue
+                
     except KeyboardInterrupt:
+        appendLog('All lessons removal aborted')
+        
         clear()
         return
 
@@ -576,42 +624,53 @@ import rpc
 def editor():
     try:
         os.system("title AutoZoom (Редактор)")
+        appendLog('Editor menu opened')
+        
         from main import mainMenu
+        
         while True:
             clear()
             
             print(f'{BBLACK}»{RESET} Меню редактора\n')
-            print(f' {BRED}1.{RESET} Добавить урок')
-            print(f' {BRED}2.{RESET} Изменить урок')
-            print(f' {BRED}3.{RESET} Удалить урок')
-            print(f' {BRED}4.{RESET} Посмотреть уроки')
-            print(f' {BRED}5.{RESET} Удалить все уроки')
+            print(f' {BRED}1.{RESET} Добавить конференцию')
+            print(f' {BRED}2.{RESET} Изменить конференцию')
+            print(f' {BRED}3.{RESET} Удалить конференцию')
+            print(f' {BRED}4.{RESET} Посмотреть конференции')
+            print(f' {BRED}5.{RESET} Удалить все конференции')
             print(f' {BRED}6.{RESET} В главное меню')
             editor_choose = input(f'\n > {BRED}')
             
             if editor_choose == '1':
+                appendLog('Went to lesson adding')
                 clear()
                 addLesson()
             elif editor_choose == '2':
+                appendLog('Went to lesson editing')
                 clear()
                 editLesson()
             elif editor_choose == '3':
+                appendLog('Went to lesson removal')
                 clear()
                 removeLesson()
             elif editor_choose == '4':
+                appendLog('Went to lesson lising')
                 clear()
                 listLessons(from_where = 'editor')
             elif editor_choose == '5':
+                appendLog('Went to all lessons removal')
                 clear()
                 removeAllLessons()
             elif editor_choose == '6':
+                appendLog('Exiting back to main menu')
                 rpc.inMenu()
                 clear()
                 os.system("title AutoZoom (Главная)")
                 mainMenu()
             else:
                 continue
+                
     except KeyboardInterrupt:
+        appendLog('Exiting back to main menu')
         rpc.inMenu()
         clear()
         return
@@ -621,13 +680,16 @@ def tgsend(enabled, message):
         if os.path.exists(files_folder+'telegram.conf'):
             tg_file = open(files_folder+'telegram.conf', 'r', encoding="utf-8")
             tg_text = tg_file.read()
+            
             if tg_text != 'Not Configured':
                 try:
                     telegram_send.send(messages=[f"{message}"], parse_mode="markdown", conf=files_folder+"telegram.conf")
-                except as Exception:
-                    print(f'{nowtime()} Не удалось отправить Telegram сообщение "{message}" (Ошибка: {Exception})')
+                except Exception as excep:
+                    appendLog(f'Failed to send TG message "{message}": {exp}')
+                    print(f'{nowtime()} Не удалось отправить Telegram сообщение "{message}" (Ошибка: {exp})')
 
 def playSound(soundname):
+
     if getConfig("sounds"):
     
         if os.name == 'nt':
@@ -636,6 +698,8 @@ def playSound(soundname):
             playsound.playsound(sounds_folder+soundname+".wav")
 
 def settings():
+    appendLog('Settings page 1 opened')
+
     try:
         while True:
             
@@ -667,14 +731,6 @@ def settings():
                 obs_val = f'{BGREEN}Вкл.{RESET}'
             else:
                 obs_val = f'{BRED}Выкл.{RESET}'
-
-            # Пока слишком много ошибок
-            # if getConfig("use_rpc"):
-                # rpc_val = f'{BGREEN}Вкл.{RESET}'
-            # elif not getConfig("use_rpc"):
-                # rpc_val = f'{BRED}Выкл.{RESET}'
-            # else:
-                # rpc_val = f'{BRED}ERROR{RESET}'
                 
             if getConfig("use_colors"):
                 color_val = f'{BGREEN}Вкл.{RESET}'
@@ -711,7 +767,7 @@ def settings():
             start_val = getConfig("start")
             stop_val = getConfig("stop")
             
-            print(f'{RESET}{BBLACK}»{RESET} Настройки\n')
+            print(f'{RESET}{BBLACK}»{RESET} Настройки (1 стр.)\n')
 
             print(f'  {BRED}1.{RESET} Режим отладки ({debug_val})')
             print(f'     {BBLACK}Не рекомендуем включать его без необходимости\n')
@@ -723,41 +779,22 @@ def settings():
             print(f'     {BBLACK}Эмулировать вызов полного экрана при запуске (окно должно быть в фокусе)\n')
 
             print(f'  {BRED}4.{RESET} Звуковые сигналы ({sounds_val})')
-            print(f'     {BBLACK}Воспроизводить звуки при начале/конце уроков и записи видео\n')
+            print(f'     {BBLACK}Воспроизводить звуки при начале/конце конференций и записи видео\n')
             
             
             print(f'  {BRED}5.{RESET} Запись через OBS ({obs_val})')
-            print(f'     {BBLACK}Возможность записи уроков через OBS\n')
-
-            # Пока слишком много ошибок
-            # print(f'  {BRED}3.{RESET} Discord RPC ({rpc_val})')
-            # print(f'     {BBLACK}Показывать какой идёт урок и какое меню открыто (нужен перезапуск)\n')
+            print(f'     {BBLACK}Возможность записи конференций через OBS\n')
 
             print(f'  {BRED}6.{RESET} Автовыключение ({shutdown_en_val})')
-            print(f'     {BBLACK}Когда уроки закончатся компьютер выключится\n')
+            print(f'     {BBLACK}Когда конференции закончатся компьютер выключится\n')
 
-            print(f'  {BRED}7.{RESET} Таймаут выключения ({YELLOW}{shutdown_time_val} мин.{RESET})')
-            print(f'     {BBLACK}Время в минутах после которого ПК будет выключен\n')
+            print(f'  {BRED}7.{RESET} Следующая страница')
+            print(f'     {BBLACK}Перейти на вторую страницу настроек\n')
 
-            print(f'  {BRED}8.{RESET} Начать запись ({YELLOW}{start_val}{RESET})')
-            print(f'     {BBLACK}Комбинация клавиш для начала записи через OBS (см. документацию)\n')
+            print(f'  {BRED}8.{RESET} В главное меню')
+            print(f'     {BBLACK}Вернуться в основное меню{RESET}\n')
 
-            print(f'  {BRED}9.{RESET} Остановить запись ({YELLOW}{stop_val}{RESET})')
-            print(f'     {BBLACK}Комбинация клавиш для остановки записи через OBS (см. документацию)\n')
-
-            print(f' {BRED}10.{RESET} Отправлять уведомления ({telegram_en_val})')
-            print(f'     {BBLACK}Ваш бот отправит сообщениия о начале/конце урока и выключении ПК\n')
-
-            print(f' {BRED}11.{RESET} Настроить Telegram бота ({tg_var})')
-            print(f'     {BBLACK}Настроить на вашем ПК бота для ЛС (см. документацию)\n')
-
-            print(f' {BRED}12.{RESET} Сбросить все настройки')
-            print(f'     {BBLACK}Восстановить настройки по умолчанию\n')
-
-            print(f' {BRED}13.{RESET} В главное меню')
-            print(f'     {BBLACK}Выйти без внесения изменений{RESET}\n')
-
-            print(f' {BBLACK}Для переключения параметров Вкл/Выкл просто введите номер\n Если окно приложения слишком мелкое - увеличьте его или листайте это меню{RESET}')
+            print(f' {BBLACK}Для переключения параметров Вкл/Выкл просто введите номер{RESET}') #\n Если окно приложения слишком мелкое - увеличьте его или листайте это меню{RESET}')
             settings_choose = input(f'\n > {BRED}')
 
             if settings_choose == '1':
@@ -767,6 +804,8 @@ def settings():
                     
                 config_list["debug"] = not getConfig("debug")
                 saveJson(files_folder+'config.json', config_list)
+                appendLog(f'Changed option "debug" to {getConfig("debug")}')
+                
                 clear()
                 continue
 
@@ -777,6 +816,8 @@ def settings():
                     
                 config_list["use_colors"] = not getConfig("use_colors")
                 saveJson(files_folder+'config.json', config_list)
+                appendLog(f'Changed option "use_colors" to {getConfig("use_colors")}')
+                
                 clear()
                 continue
 
@@ -787,6 +828,7 @@ def settings():
                 
                 config_list["run_fullscreen"] = not getConfig("run_fullscreen")
                 saveJson(files_folder+'config.json', config_list)
+                appendLog(f'Changed option "run_fullscreen" to {getConfig("run_fullscreen")}')
                 
                 clear()
                 continue
@@ -798,6 +840,7 @@ def settings():
                 
                 config_list["sounds"] = not getConfig("sounds")
                 saveJson(files_folder+'config.json', config_list)
+                appendLog(f'Changed option "sounds" to {getConfig("sounds")}')
                 
                 clear()
                 continue
@@ -839,24 +882,17 @@ def settings():
                                 else:
                                     easygui.msgbox("Неверный путь")
                                 break
-                            except:
+                            except Exception as exp:
+                                appendLog(f'Could not select OBS path: {exp}')
                                 none = input('Вы не выбрали верный путь для OBS.\n\n > ')
                                 clear()
                                 break
                 saveJson(files_folder+'config.json', config_list)
+                appendLog(f'Changed option "obs_exe" to {getConfig("obs_exe")}')
+                appendLog(f'Changed option "obs_core" to {getConfig("obs_core")}')
+                
                 clear()
                 continue
-
-            # Пока слишком много ошибок
-            # elif settings_choose == '3':
-                # with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
-                    # config_list = json.load(json_file)
-                
-                # config_list["use_rpc"] = not getConfig("use_rpc")
-                # saveJson(files_folder+'config.json', config_list)
-                
-                # clear()
-                # continue
 
             elif settings_choose == '6':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
@@ -865,10 +901,100 @@ def settings():
                     
                 config_list["shutdown_enabled"] = not getConfig("shutdown_enabled")
                 saveJson(files_folder+'config.json', config_list)
+                appendLog(f'Changed option "shutdown_enabled" to {getConfig("shutdown_enabled")}')
+                
                 clear()
                 continue
 
             elif settings_choose == '7':
+                clear()
+                settings2()
+                
+            elif settings_choose == '8':
+                rpc.inMenu()
+                clear()
+                os.system("title AutoZoom (Главная)")
+                return
+                
+    except KeyboardInterrupt:
+        rpc.inMenu()
+        clear()
+        return
+
+def settings2():
+    appendLog('Settings page 2 opened')
+
+    try:
+        while True:
+            
+            os.system("title AutoZoom (Настройки)")
+            clear()
+                
+            if getConfig("use_colors"):
+                color_val = f'{BGREEN}Вкл.{RESET}'
+            elif not getConfig("use_colors"):
+                color_val = f'{BRED}Выкл.{RESET}'
+            else:
+                color_val = f'{BRED}ERROR{RESET}'
+            
+            if os.path.exists(files_folder+'telegram.conf'):
+                tg_file = open(files_folder+'telegram.conf', 'r', encoding="utf-8")
+                tg_text = tg_file.read()
+                if tg_text != 'Not Configured':
+                    tg_var = f'{BGREEN}Настроен{RESET}'
+                else:
+                    tg_var = f'{BRED}Не настроен{RESET}'
+            else:
+                tg_var = f'{BRED}Не настроен{RESET}'
+                
+            if getConfig("telegram_enabled"):
+                telegram_en_val = f'{BGREEN}Вкл.{RESET}'
+            elif not getConfig("debug"):
+                telegram_en_val = f'{BRED}Выкл.{RESET}'
+            else:
+                telegram_en_val = f'{BRED}ERROR{RESET}'
+                
+            if getConfig("update_check"):
+                update_val = f'{BGREEN}Вкл.{RESET}'
+            elif not getConfig("update_check"):
+                update_val = f'{BRED}Выкл.{RESET}'
+            else:
+                update_val = f'{BRED}ERROR{RESET}'
+             
+            shutdown_time_val = getConfig("shutdown_timeout")
+            start_val = getConfig("start")
+            stop_val = getConfig("stop")
+            
+            print(f'{RESET}{BBLACK}»{RESET} Настройки (2 стр.)\n')
+
+            print(f'  {BRED}1.{RESET} Таймаут выключения ({YELLOW}{shutdown_time_val} мин.{RESET})')
+            print(f'     {BBLACK}Время в минутах после которого ПК будет выключен\n')
+
+            print(f'  {BRED}2.{RESET} Начать запись ({YELLOW}{start_val}{RESET})')
+            print(f'     {BBLACK}Комбинация клавиш для начала записи через OBS (см. документацию)\n')
+
+            print(f'  {BRED}3.{RESET} Остановить запись ({YELLOW}{stop_val}{RESET})')
+            print(f'     {BBLACK}Комбинация клавиш для остановки записи через OBS (см. документацию)\n')
+
+            print(f'  {BRED}4.{RESET} Отправлять уведомления ({telegram_en_val})')
+            print(f'     {BBLACK}Ваш бот отправит сообщениия о начале/конце конференции и выключении ПК\n')
+
+            print(f'  {BRED}5.{RESET} Настроить Telegram бота ({tg_var})')
+            print(f'     {BBLACK}Настроить на вашем ПК бота для ЛС (см. документацию)\n')
+            
+            print(f'  {BRED}6.{RESET} Проверка обновлений ({update_val})')
+            print(f'     {BBLACK}Не рекомендуем выключать без необходимости\n')
+            
+            print(f'  {BRED}7.{RESET} Следующая страница')
+            print(f'     {BBLACK}Перейти на третью страницу настроек\n')
+
+            print(f'  {BRED}8.{RESET} Назад')
+            print(f'     {BBLACK}Вернуться на предыдущую страницу{RESET}\n')
+
+            print(f' {BBLACK}Для переключения параметров Вкл/Выкл просто введите номер{RESET}') #\n Если окно приложения слишком мелкое - увеличьте его или листайте это меню{RESET}')
+            settings_choose = input(f'\n > {BRED}')
+
+            if settings_choose == '1':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
                     json_file.close()
@@ -877,6 +1003,7 @@ def settings():
                     clear()
                     config_list["shutdown_timeout"] = int(input(f'{RESET}Введите через сколько минут после конференции выключать ПК:\n\n > {BRED}'))
                     saveJson(files_folder+'config.json', config_list)
+                    appendLog(f'Changed option "shutdown_timeout" to {getConfig("shutdown_timeout")}')
                     continue
                 except:
                     clear()
@@ -885,7 +1012,7 @@ def settings():
                     continue
                 continue
 
-            elif settings_choose == '8':
+            elif settings_choose == '2':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
                     json_file.close()
@@ -894,6 +1021,7 @@ def settings():
                     clear()
                     config_list["start"] = input(f'{RESET}Введите комбинацию клавиш для начала записи OBS:\nЭта комбинация должна быть идентична оной в самом OBS!\n\n > {YELLOW}')
                     saveJson(files_folder+'config.json', config_list)
+                    appendLog(f'Changed option "start" to {getConfig("start")}')
                     continue
                 except:
                     clear()
@@ -902,7 +1030,7 @@ def settings():
                     continue
                 continue
 
-            elif settings_choose == '9':
+            elif settings_choose == '3':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
                     json_file.close()
@@ -911,6 +1039,7 @@ def settings():
                     clear()
                     config_list["stop"] = input(f'{RESET}Введите комбинацию клавиш для остановки записи OBS:\nЭта комбинация должна быть идентична оной в самом OBS!\n\n > {YELLOW}')
                     saveJson(files_folder+'config.json', config_list)
+                    appendLog(f'Changed option "stop" to {getConfig("stop")}')
                     continue
                 except:
                     clear()
@@ -919,17 +1048,19 @@ def settings():
                     continue
                 continue
 
-            elif settings_choose == '10':
+            elif settings_choose == '4':
                 with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
                     config_list = json.load(json_file)
                     json_file.close()
                     
                 config_list["telegram_enabled"] = not getConfig("telegram_enabled")
                 saveJson(files_folder+'config.json', config_list)
+                appendLog(f'Changed option "telegram_enabled" to {getConfig("telegram_enabled")}')
+                
                 clear()
                 continue
 
-            elif settings_choose == '11':
+            elif settings_choose == '5':
                 clear()
                 print(f'{RESET}Пожалуйста, прочтите инструкцию по установке Telegram бота в {BRED}README.txt{RESET}')
                 print(f'или в документации/инструкции что в разделе {CYAN}Помощь{RESET} главного меню')
@@ -945,48 +1076,139 @@ def settings():
                         clear()
                         continue
                     telegram_send.send(messages=[f"🎊 Конфигурация правильна, всё работает!"], parse_mode="markdown", conf=f"{files_folder}telegram.conf")
+                    appendLog('Telegram Send successfully configured')
                     clear()
                 continue
 
-            elif settings_choose == '12':
+            elif settings_choose == '6':
+                with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
+                    config_list = json.load(json_file)
+                    json_file.close()
+                
+                config_list["update_check"] = not getConfig("update_check")
+                saveJson(files_folder+'config.json', config_list)
+                appendLog(f'Changed option "update_check" to {getConfig("update_check")}')
+                
+                clear()
+                continue
+
+            elif settings_choose == '7':
+                appendLog('Going to settings page 3')
+                clear()
+                settings3()
+
+            elif settings_choose == '8':
+                appendLog('Returning to settings page 1')
+                clear()
+                return
+                
+    except KeyboardInterrupt:
+        rpc.inMenu()
+        clear()
+        return
+
+def settings3():
+    appendLog('Settings page 3 opened')
+    
+    try:
+        while True:
+            
+            os.system("title AutoZoom (Настройки)")
+            clear()
+                
+            if getConfig("write_logs"):
+                logs_val = f'{BGREEN}Вкл.{RESET}'
+            elif not getConfig("write_logs"):
+                logs_val = f'{BRED}Выкл.{RESET}'
+            else:
+                logs_val = f'{BRED}ERROR{RESET}'
+             
+            shutdown_time_val = getConfig("shutdown_timeout")
+            start_val = getConfig("start")
+            stop_val = getConfig("stop")
+            
+            print(f'{RESET}{BBLACK}»{RESET} Настройки (3 стр.)\n')
+
+            print(f'  {BRED}1.{RESET} Запись действий в лог ({logs_val})')
+            print(f'     {BBLACK}Запись каждого действия в файл для отладки (не выключайте без причин)\n')
+
+            print(f'  {BRED}2.{RESET} Размер лога действий ({YELLOW}{str(getConfig("log_size"))} Кб{RESET})')
+            print(f'     {BBLACK}Размер файла лога превышая который он будет упакован в архив\n')
+
+            print(f'  {BRED}3.{RESET} Сбросить все настройки')
+            print(f'     {BBLACK}Восстановить настройки по умолчанию\n')
+
+            print(f'  {BRED}4.{RESET} Назад')
+            print(f'     {BBLACK}Вернуться на предыдущую страницу{RESET}\n')
+
+            print(f' {BBLACK}Для переключения параметров Вкл/Выкл просто введите номер{RESET}') #\n Если окно приложения слишком мелкое - увеличьте его или листайте это меню{RESET}')
+            settings_choose = input(f'\n > {BRED}')
+
+            if settings_choose == '1':
+                with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
+                    config_list = json.load(json_file)
+                    json_file.close()
+                
+                config_list["write_logs"] = not getConfig("write_logs")
+                saveJson(files_folder+'config.json', config_list)
+                appendLog(f'Changed option "write_logs" to {getConfig("write_logs")}')
+
+            if settings_choose == '2':
+                with open(f"{files_folder}config.json", encoding="utf-8") as json_file:
+                    config_list = json.load(json_file)
+                    json_file.close()
+                
+                try:
+                    clear()
+                    config_list["log_size"] = int(input(f'{RESET}Введите после скольки килобайт архивировать лог:\n\n > {BRED}'))
+                    saveJson(files_folder+'config.json', config_list)
+                    continue
+                except:
+                    clear()
+                    print(f'{RESET}Нужно использовать целое число.')
+                    time.sleep(2)
+                    continue
+                    
+                appendLog(f'Changed option "log_size" to {getConfig["log_size"]}')
+                continue
+
+            elif settings_choose == '3':
+                appendLog('Resetting configuration')
+            
                 while True:
                     clear()
                     reset_decision = input(f'{RESET}Вы уверены что хотите сбросить настройки? {RESET}({BGREEN}Да{RESET}/{BRED}Нет{RESET})\n\n{BRED}Внимание!{RESET} Это действие нельзя обратить!\nВаш список конференций затронут НЕ будет.\n\n > ')
+
                     if reset_decision.lower() in ['y', 'yes', 'д', 'да']:
-                        temp_config_list = {}
-                        temp_config_list["debug"] = False
-                        temp_config_list["shutdown_timeout"] = 30
-                        temp_config_list["shutdown_enabled"] = True
-                        temp_config_list["start"] = "shift+f7"
-                        temp_config_list["stop"] = "shift+f8"
-                        temp_config_list["telegram_enabled"] = False
-                        temp_config_list["use_colors"] = True
-                        temp_config_list["run_fullscreen"] = False
-                        temp_config_list["use_rpc"] = True
-                        temp_config_list["sounds"] = True
-                        temp_config_list["end_mode"] = "shutdown"
-                        temp_config_list["obs_exe"] = None
-                        temp_config_list["obs_core"] = None
-                        saveJson(files_folder+'config.json', temp_config_list)
+                    
+                        from functions import default_config
+                        
+                        saveJson(files_folder+'config.json', default_config)
+                        appendLog('Configuration dropped to default')
                         clear()
                         none = input(f'{RESET}Все настройки были сброшены до стандартных.\n\n > ')
                         clear()
                         break
+                        
                     elif reset_decision.lower() in ['n', 'no', 'н', 'нет']:
+                        appendLog('Configuration reset aborted')
                         clear()
                         break
+                        
                     else:
                         clear()
                         continue
+                        
                     continue
+                    
                 clear()
                 continue
 
-            elif settings_choose == '13':
-                rpc.inMenu()
+            elif settings_choose == '4':
+                appendLog('Returning to settings page 2')
                 clear()
-                os.system("title AutoZoom (Главная)")
                 return
+                
     except KeyboardInterrupt:
         rpc.inMenu()
         clear()
@@ -1014,6 +1236,7 @@ def main(source='deamon'):
         clear()
         
         os.system("title AutoZoom (Демон)")
+        appendLog('Main daemon opened')
 
         import webbrowser
         
@@ -1053,11 +1276,13 @@ def main(source='deamon'):
                                     easygui.msgbox("Неверный путь")
                                     continue
                                 break
-                            except:
+                            except Exception as exp:
                                 none = input('Вы не выбрали верный путь для OBS.\n\n > ')
                                 config_list["obs_exe"] = 'Disabled'
                                 config_list["obs_core"] = 'Disabled'
                                 saveJson(files_folder+'config.json', config_list)
+                                appendLog(f'Could not select path to OBS: {exp}')
+                                
                                 clear()
                                 break
                     break
@@ -1088,18 +1313,24 @@ def main(source='deamon'):
                             
                 while True:
                     clear()
+                    
                     try:
                         telegram_send.configure(files_folder+'telegram.conf', channel=False, group=False, fm_integration=False)
                         break
-                    except:
+                    except Exception as exp:
+                        appendLog(f'Failed to configure Telegram Send: {exp}')
                         clear()
                         continue
+                        
                     telegram_send.send(messages=[f"🎊 Конфигурация правильна, всё работает!"], parse_mode="markdown", conf=f"{files_folder}telegram.conf")
+                    appendLog('Telegram Send successfully configured')
                     clear()
+                    
             elif tg_choice.lower() in ['n', 'no', 'н', 'нет']:
                 with open(files_folder+'telegram.conf', 'w', encoding="utf-8") as f:
                     f.write('Not Configured')
                     f.close()
+                    
         lessons_count = 0
         
         try:
@@ -1117,8 +1348,10 @@ def main(source='deamon'):
                 lesson_date = les["date"]
                 lesson_time = les["time"]
                 lesson_url = les["link"]
+                lesson_url_original = les["link"]
                 lesson_obs = les["record"]
                 lesson_repeat = les["repeat"]
+                
                 try:
                     lesson_repeat_day = les["repeat_day"]
                 except:
@@ -1129,7 +1362,7 @@ def main(source='deamon'):
                 if (today == lesson_date) or (getDayNum(today) == lesson_repeat_day):
                     print(f'{BBLACK}================================================{RESET}\n')
                 
-                    print(f'{nowtime()} Найден урок {CYAN}{lesson_name}{RESET} в {BRED}{lesson_time}{RESET}. Ждём начала...')
+                    print(f'{nowtime()} Найдена конференция {CYAN}{lesson_name}{RESET} в {BRED}{lesson_time}{RESET}. Ждём начала...')
                     
                     waiting_time_unix = int(time.time())
                     rpc.waitLesson(lesson_name, waiting_time_unix)
@@ -1140,6 +1373,9 @@ def main(source='deamon'):
                         if os.name == 'nt':
                             i = 0
                             
+                            if i == 0:
+                                lesson_url = lesson_url.replace(f"https://zoom.us/j/", "zoommtg://zoom.us/join?action=join&confno=")
+                            
                             while i < 10:
                                 lesson_url = lesson_url.replace(f"https://us0{i}web.zoom.us/j/", "zoommtg://zoom.us/join?action=join&confno=")
                                 i += 1
@@ -1148,12 +1384,18 @@ def main(source='deamon'):
                             lesson_url = lesson_url.replace("?pwd", "^&pwd")
                             
                             if getConfig("debug"):
-                                print(lesson_url)
+                                print(f'{nowtime()} Ориг. ссылка: {BRED}{lesson_url_original}{RESET}')
+                                print(f'{nowtime()} Измен. ссылка: {BRED}{lesson_url}{RESET}')
+                                
+                            appendLog(f'Replacing link {lesson_url_original} with {lesson_url}')
                             
                             os.system(f'start {lesson_url}')
                         else:
                             i = 0
                             
+                            if i == 0:
+                                lesson_url = lesson_url.replace(f"https://zoom.us/j/", "zoommtg://zoom.us/join?action=join&confno=")
+                                
                             while i < 10:
                                 lesson_url = lesson_url.replace(f"https://us0{i}web.zoom.us/j/", "zoommtg://zoom.us/join?action=join&confno=")
                                 i += 1
@@ -1161,34 +1403,94 @@ def main(source='deamon'):
                             lesson_url = lesson_url.replace("?pwd=", "&pwd=")
                             
                             if getConfig("debug"):
-                                print(lesson_url)
+                                print(f'{nowtime()} Ориг. ссылка: {BRED}{lesson_url_original}{RESET}')
+                                print(f'{nowtime()} Измен. ссылка: {BRED}{lesson_url}{RESET}')
+                                
+                            appendLog(f'Replacing link {lesson_url_original} with {lesson_url}')
                                 
                             os.system(f'xdg-open "{lesson_url}"')
-                    except:
+                    except Exception as exep:
+                        appendLog(f'Failed to open lesson {lesson_name} in Zoom: {exep}')
+                        
                         try:
                             webbrowser.open(lesson_url)
-                        except:
-                            print(f'{nowtime()} Открыть урок {CYAN}{lesson_name}{RESET} не удалось ни напрямую, ни в браузере.')
+                        except Exception as exp:
+                            print(f'{nowtime()} Открыть конференцию {CYAN}{lesson_name}{RESET} не удалось ни напрямую, ни в браузере.')
+                            appendLog(f'Failed to open lesson {lesson_name} in both browser and Zoom: {exp}')
                     
                     easteregg_number = randint(1, 100000)
+                    
                     if easteregg_number == 69420:
+                        appendLog('Easteregg summoned')
                         webbrowser.open('https://www.pornhub.com/view_video.php?viewkey=ph5f3eb1e206aa8')
+                        
                     print(f'{nowtime()} Ждём {BRED}10 секунд{RESET} до отслеживания Zoom...')
                     time.sleep(10)
                     
                     retries = 0
+                    destroy = False
                     
                     while not getState():
                         if getConfig("debug"):
-                            print(f'{nowtime()} Урок задерживается, ждём...')
+                            print(f'{nowtime()} Конференция задерживается, ждём... ({getState()})')
+                        
+                        appendLog('Lesson delay found')
+                            
                         time.sleep(5)
                         retries += 1
                         
                         if retries == 36:
-                            tgsend(getConfig("telegram_enabled"), f"⚠ Задержка урока *{lesson_name}* превысила 3 минуты {profilename}")
+                            tgsend(getConfig("telegram_enabled"), f"⚠ Задержка конференции *{lesson_name}* превысила 3 минуты {profilename}")
+                            print(f'{nowtime()} Задержка конференции {CYAN}{lesson_name}{RESET} превысила {BRED}3{RESET} минуты')
+                            appendLog(f'Lesson delay exceeded: {retries} retries')
                             
                         if retries == 120:
-                            tgsend(getConfig("telegram_enabled"), f"⚠ Задержка урока *{lesson_name}* превысила 10 минут {profilename}")
+                            tgsend(getConfig("telegram_enabled"), f"⚠ Задержка конференции *{lesson_name}* превысила 10 минут {profilename}")
+                            print(f'{nowtime()} Задержка конференции {CYAN}{lesson_name}{RESET} превысила {BRED}10{RESET} минут')
+                            appendLog(f'Lesson delay exceeded: {retries} retries')
+                        
+                        if retries == 360:
+                        
+                            if getConfig("debug"):
+                                tgsend(getConfig("telegram_enabled"), f"⚠ Задержка конференции *{lesson_name}* превысила 30 минут, конференция сбошена {profilename}")
+                                print(f'{nowtime()} Задержка конференции {CYAN}{lesson_name}{RESET} превысила {BRED}30{RESET} минут, конференция сброшена')
+                            else:
+                                tgsend(getConfig("telegram_enabled"), f"⚠ Задержка конференции *{lesson_name}* превысила 30 минут, конференция сбошена {profilename}")
+                                print(f'{nowtime()} Задержка конференции {CYAN}{lesson_name}{RESET} превысила {BRED}30{RESET} минут, конференция сброшена')
+                                
+                            appendLog(f'Lesson delay exceeded: {retries} retries')
+                            
+                            playSound("ended")
+                            
+                            if lesson_obs:
+                            
+                                record_now = False
+                                
+                                time.sleep(3)
+                                
+                                try:
+                                    obs_process.terminate()
+                                except Exception as exp:
+                                    appendLog(f'Failed to stop OBS process: {exp}')
+                                    
+                                    if getConfig("debug"):
+                                        print(f'{nowtime()} Не удалось остановить процесс OBS.')
+                                
+                            if not lesson_repeat:
+                                del lessons_list[lessons_list.index(les)]
+                                    
+                                saveJson(files_folder+'lessons.json', lessons_list)
+                                    
+                                if getConfig("debug"):
+                                    print(f'{nowtime()} Конференция {CYAN}{lesson_name}{RESET} в {BRED}{lesson_time}{RESET} удалена.')
+                            
+                            print(f'\n{BBLACK}================================================{RESET}\n\n')
+                                
+                            firstshow = True
+                            
+                            lessons_count = lessons_count+1
+                            destroy = True
+                            break
                         
                         continue
                     
@@ -1196,7 +1498,7 @@ def main(source='deamon'):
                     lesson_duration = 0
                     firstshow = True
                     
-                    if lesson_obs:
+                    if lesson_obs and not destroy:
                         try:
                             if getConfig("debug"):
                                 print(f'{nowtime()} Импортированы клавиши старта и остановки записи ({YELLOW}{getConfig("start")}{RESET} и {YELLOW}{getConfig("stop")}{RESET}).')
@@ -1211,62 +1513,78 @@ def main(source='deamon'):
                         
                     i = 0
                     
-                    while True:
+                    while True and not destroy:
                         while i < 3:
                             if getState():
-                                    if firstshow:
+                                if firstshow:
+                                    try:
                                         start_time_unix = int(time.time())
-                                        
-                                        print(f'{nowtime()} Захвачен текущий урок в Zoom.')
-                                        
-                                        playSound("started")
-                                        tgsend(getConfig("telegram_enabled"), f"▶ Зашёл на урок *{lesson_name}* в *{nowtime(False, False, False)}* {profilename}")
-                                        
-                                        rpc.onLesson(lesson_name, start_time_unix)
-                                        
-                                        if lesson_obs:
-                                            try:
-                                                obs_process = subprocess.Popen(getConfig("obs_exe"), cwd=getConfig("obs_core"))
-                                                time.sleep(5)
-                                            except:
-                                                print(f'{nowtime()} Не удалось открыть OBS для записи.')
-                                        else:
-                                            if getConfig("debug"):
-                                                print(f'{nowtime()} Не включаем OBS для записи.')
-                                        firstshow = False
+                                        lesson_start = datetime.now()
+                                    except:
+                                        pass
+                                    
+                                    print(f'{nowtime()} Захвачена текущая конференция в Zoom.')
+                                    
+                                    playSound("started")
+                                    tgsend(getConfig("telegram_enabled"), f"▶ Зашёл на конференцию *{lesson_name}* в *{nowtime(False, False, False)}* {profilename}")
+                                    
+                                    appendLog(f'joined lesson {lesson_name} at {nowtime(False, False, False)}')
+                                    
+                                    rpc.onLesson(lesson_name, start_time_unix)
                                     
                                     if lesson_obs:
-                                        if not record_now:
-                                            keyboard.press(start)
-                                            time.sleep(.25)
-                                            keyboard.release(start)
-                                            record_now = True
-                                            print(f'{nowtime()} Сигнал записи OBS отправлен.')
-                                            playSound("recordstart")
+                                        try:
+                                            obs_process = subprocess.Popen(getConfig("obs_exe"), cwd=getConfig("obs_core"))
+                                            appendLog(f'Sent instruction to open OBS')
+                                            time.sleep(5)
+                                        except Exception as exp:
+                                            appendLog(f'Failed to open OBS: {exp}')
+                                            print(f'{nowtime()} Не удалось открыть OBS для записи.')
+                                    else:
+                                        if getConfig("debug"):
+                                            print(f'{nowtime()} Не включаем OBS для записи.')
                                             
-                                    lesson_duration = lesson_duration + 5
+                                    firstshow = False
+                                
+                                if lesson_obs:
+                                    if not record_now:
+                                        keyboard.press(start)
+                                        time.sleep(.25)
+                                        keyboard.release(start)
+                                        record_now = True
+                                        print(f'{nowtime()} Сигнал записи OBS отправлен.')
+                                        playSound("recordstart")
                                         
-                                    if getConfig("debug"):
-                                        print(f'{nowtime()} Zoom подключён. Урок идёт уже {BGREEN}{str(lesson_duration)} сек{RESET}. ({BGREEN}{str(round(lesson_duration/60, 2))} мин{RESET}.)')
-                                        
-                                    time.sleep(5)
-                                    continue
+                                lesson_duration = (datetime.now() - lesson_start).total_seconds()
+                                    
+                                if getConfig("debug"):
+                                    print(f'{nowtime()} Zoom подключён. Конференция идёт уже {BGREEN}{str(lesson_duration)} сек{RESET}. ({BGREEN}{str(round(lesson_duration/60, 2))} мин{RESET}.)')
+                                    
+                                time.sleep(5)
+                                continue
                             else:
                                 i += 1
+                                appendLog(f'CptHost.exe not found, trying again in 10 seconds')
+                                
                                 if getConfig("debug"):
-                                    print(f'{nowtime()} {BRED}Урок не обнаружен! {RESET}Повторная проверка через {BRED}10 {RESET}секунд...')
+                                    print(f'{nowtime()} {BRED}Конференция не обнаружена! {RESET}Повторная проверка через {BRED}10 {RESET}секунд...')
+                                    
                                 time.sleep(10)
                                 continue
                                 
                         if getConfig("debug"):
                             print(f'{nowtime()} Zoom отключился. Процесс {BRED}CptHost.exe{RESET} более не существует.')
                             
+                        appendLog(f'CptHost.exe not found, Zoom disconnected')
+                            
                         if getConfig("debug"):
-                            tgsend(getConfig("telegram_enabled"), f"◀ Урок *{lesson_name}* длился *{str(round(lesson_duration/60, 2))}* мин.")
-                            print(f'{nowtime()} Урок длился {BGREEN}{str(lesson_duration)} сек{RESET}. ({BGREEN}{str(round(lesson_duration/60, 2))} мин{RESET}.)')
+                            tgsend(getConfig("telegram_enabled"), f"◀ Конференция *{lesson_name}* длилась *{str(round(lesson_duration/60, 2))}* мин.")
+                            print(f'{nowtime()} Конференция длилась {BGREEN}{str(lesson_duration)} сек{RESET}. ({BGREEN}{str(round(lesson_duration/60, 2))} мин{RESET}.)')
                         else:
-                            tgsend(getConfig("telegram_enabled"), f"◀ Урок *{lesson_name}* длился *{str(int(lesson_duration/60))}* мин.")
-                            print(f'{nowtime()} Урок длился {BGREEN}{str(lesson_duration)} сек{RESET}. ({BGREEN}{str(int(lesson_duration/60))} мин{RESET}.)')
+                            tgsend(getConfig("telegram_enabled"), f"◀ Конференция *{lesson_name}* длилась *{str(int(lesson_duration/60))}* мин.")
+                            print(f'{nowtime()} Конференция длилась {BGREEN}{str(lesson_duration)} сек{RESET}. ({BGREEN}{str(int(lesson_duration/60))} мин{RESET}.)')
+                            
+                        appendLog(f'Lesson {lesson_name} duration was {str(int(lesson_duration/60))} m. ({str(lesson_duration)} s.)')
                             
                         playSound("ended")
                         
@@ -1278,9 +1596,12 @@ def main(source='deamon'):
                             playSound("recordstop")
                             record_now = False
                             time.sleep(3)
+                            
                             try:
                                 obs_process.terminate()
-                            except:
+                            except Exception as exp:
+                                appendLog(f'Failed to stop OBS process: {exp}')
+                                
                                 if getConfig("debug"):
                                     print(f'{nowtime()} Не удалось остановить процесс OBS.')
                             
@@ -1288,9 +1609,10 @@ def main(source='deamon'):
                             del lessons_list[lessons_list.index(les)]
                                 
                             saveJson(files_folder+'lessons.json', lessons_list)
+                            appendLog(f'Lesson named {lesson_name} removed')
                                 
                             if getConfig("debug"):
-                                print(f'{nowtime()} Урок {CYAN}{lesson_name}{RESET} в {BRED}{lesson_time}{RESET} удалён.')
+                                print(f'{nowtime()} Конференция {CYAN}{lesson_name}{RESET} в {BRED}{lesson_time}{RESET} удалена.')
                         
                         print(f'\n{BBLACK}================================================{RESET}\n\n')
                             
@@ -1298,29 +1620,42 @@ def main(source='deamon'):
                         
                         lessons_count = lessons_count+1
                         break
+                        
                 record_now = False
+                retries = 0
+                destroy = False
                 lessons_list = getLessons()
+                
             except KeyboardInterrupt:
+                appendLog('Lessons waiting reset')
+                
                 if getConfig("debug"):
-                    print(f'{nowtime()} Ожидание урока сброшено.')
+                    print(f'{nowtime()} Ожидание конференции сброшено.')
                 else:
                     print('')
+                    
                 time.sleep(1)
                 pass
 
         time.sleep(3)
-        print(f'{nowtime()} Уроков нет или же все в списке закончились.')
+        appendLog('Could not find any more lessons today')
+        print(f'{nowtime()} Конференций нет или же все в списке закончились.')
         
         if lessons_count > 0:
             if getConfig("shutdown_enabled"):
                 if getConfig("end_mode") == 'shutdown':
                     try:
-                        tgsend(getConfig("telegram_enabled"), f"⚠ Уроки кончились, автовыключение {profilename}через {str(getConfig('shutdown_timeout'))} мин...")
+                        tgsend(getConfig("telegram_enabled"), f"⚠ Конференции кончились, автовыключение {profilename}через {str(getConfig('shutdown_timeout'))} мин...")
                         print(f'{nowtime()} Ваш ПК автоматически выключится через {BRED}{str(getConfig("shutdown_timeout"))} мин{RESET}.')
+                        
+                        appendLog(f'Shutting PC down in {str(getConfig("shutdown_timeout"))}')
+                        
                         playSound("shutdown")
                         end_unix = int(time.time())+getConfig("shutdown_timeout")*60
                         rpc.shutdown(end_unix)
                         shutdown = inputimeout(prompt=f'{nowtime()} Нажмите {CYAN}Enter{RESET} чтобы предотвратить выключение ПК...', timeout=getConfig("shutdown_timeout")*60)
+                        
+                        appendLog('Shutdown aborted')
                         clear()
                     except TimeoutOccurred:
                         clear()
@@ -1328,6 +1663,7 @@ def main(source='deamon'):
                         time.sleep(3)
                         tgsend(getConfig("telegram_enabled"), f"⚠ Время таймаута исткело, выключаем ваш ПК...")
                         time.sleep(5)
+                        appendLog('Shutting PC down')
                         os.system("shutdown /s /t 1")
                 # elif getConfig("end_mode") == 'restart':
                     # from datetime import datetime, time
@@ -1341,11 +1677,17 @@ def main(source='deamon'):
                         # sleep(2)
         
         if source == 'deamon':
+            appendLog(f'Waiting for any input')
+            
+            rpc.lessonEnded()
             exit = input(f'{nowtime()} Программа завершена! Нажмите {CYAN}Enter{RESET} чтобы выйти...')
             rpc.disconnect()
             clear()
             sys.exit()
         elif source == 'menu':
+            appendLog(f'Waiting for any input')
+            
+            rpc.lessonEnded()
             exit = input(f'{nowtime()} Программа завершена! Нажмите {CYAN}Enter{RESET} чтобы вернуться в меню...')
             rpc.inMenu()
             clear()
@@ -1353,11 +1695,17 @@ def main(source='deamon'):
             return
     except KeyboardInterrupt:
         if source == 'deamon':
+            appendLog(f'Deamon stopped, waiting for any input')
+            
+            rpc.lessonEnded()
             exit = input(f'{nowtime()} Программа остановлена! Нажмите {CYAN}Enter{RESET} чтобы выйти...')
             rpc.disconnect()
             clear()
             sys.exit()
         elif source == 'menu':
+            appendLog(f'Deamon stopped, waiting for any input')
+            
+            rpc.lessonEnded()
             exit = input(f'{nowtime()} Программа остановлена! Нажмите {CYAN}Enter{RESET} чтобы вернуться в меню...')
             rpc.inMenu()
             clear()
