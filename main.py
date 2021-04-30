@@ -11,9 +11,13 @@ from pathlib import Path
 
 from functions import *
 
-os.system("title")
+appendLog('main.py start initialized', startup=True)
 
-from daemon import main, editor, settings, clear
+setTitle("", getOS())
+
+from daemon import main
+import settings
+import editor
 import rpc
 
 if getConfig("use_colors"):
@@ -32,12 +36,12 @@ import keyboard
 import getpass
 from zipfile import ZipFile
 
-version = 2.0
+version = 2.1
 path = Path(__file__).resolve().parent
 
 def mainMenu():
     try:
-        os.system("title AutoZoom (Главная)")
+        setTitle("AutoZoom (Главная)", getOS())
     
         global version
         global path
@@ -50,29 +54,41 @@ def mainMenu():
                 print(f'{RESET}Загрузка данных о последней версии...')
                 
                 try:
-                    os.system("title Загрузка данных...")
+                    setTitle("Загрузка данных...", getOS())
                     serv_ver = requests.get("https://www.end-play.xyz/AutoZoomVersion.txt").text
-                    os.system("title AutoZoom (Главная)")
+                    setTitle("AutoZoom (Главная)", getOS())
+                    ignore = False
                     clear()
                     
                 except Exception as exp:
                     appendLog(f'Version number load failed {exp}')
-                    os.system("title Ошибка загрузки данных")
+                    setTitle("Ошибка загрузки данных", getOS())
                     print(f'Не удалось загрузить данные о последней версии.\nПроверьте подключение к сети и повторите попытку.\n\nСтатус сервера центра обновлений:\n{BRED}https://status.end-play.xyz/786373747{RESET}')
-                    none = input('\n > ')
-                    rpc.disconnect()
-                    sys.exit()
+
+                    todo = input(f'\nВведите {BRED}ignore {RESET}чтобы выключить проверку обновлений и продолжить\nлибо введите что угодно иное чтобы закрыть программу.\n\n > {BRED}')
+
+                    if todo.lower() == 'ignore':
+                        setConfig("update_check", False)
+                        serv_ver = ''
+                        appendLog('Skipping update check')
+                        setTitle("AutoZoom (Главная)", getOS())
+                        ignore = True
+                        clear()
+                    else:
+                        rpc.disconnect()
+                        sys.exit()
                     
-                if float(serv_ver) > float(version):
+                if ignore == False and float(serv_ver) > float(version):
                     show_version = f' ({BRED}!{RESET})'
                 else:
                     show_version = ''
                     
             else:
-                os.system("title AutoZoom (Главная)")
-                show_version = ''
+                show_version = f' ({BRED}!{RESET})'
+                setTitle("AutoZoom (Главная)", getOS())
                 serv_ver = 'disabled'
                 appendLog('Skipping update check')
+                clear()
             
             print(f'{BBLACK}»{RESET} Главное меню\n')
             print(f' {BRED}1.{RESET} Запуск')
@@ -81,7 +97,11 @@ def mainMenu():
             print(f' {BRED}4.{RESET} Обновление{show_version}')
             print(f' {BRED}5.{RESET} Помощь и связь')
             print(f' {BRED}6.{RESET} Закрыть приложение')
-            menu_choose = input(f'\n > {BRED}')
+            
+            if getConfig("debug"):
+                print(f' {BRED}10.{RESET} Меню разработчика')
+            
+            menu_choose = input(f'\n {RESET}> {BRED}')
             print(RESET)
             
             if menu_choose == '1':
@@ -90,11 +110,11 @@ def mainMenu():
             elif menu_choose == '2':
                 appendLog('Went to editor')
                 rpc.inEditor()
-                editor()
+                editor.editor()
             elif menu_choose == '3':
                 appendLog('Went to settings')
                 rpc.inSettings()
-                settings()
+                settings.settings()
             elif menu_choose == '4':
                 appendLog('Went to updater')
                 rpc.inUpdater()
@@ -104,10 +124,17 @@ def mainMenu():
                 rpc.inHelp()
                 helpMenu()
             elif menu_choose == '6':
-                appendLog('Exited AutoZoom')
+                appendLog('Exited AutoZoom from main menu', shutdown=True)
                 rpc.disconnect()
                 clear()
                 sys.exit()
+            elif menu_choose == '10':
+                if getConfig("debug"):
+                    appendLog('Went to help')
+                    rpc.inDebug()
+                    devMenu()
+                else:
+                    clear()
             else:
                 clear()
                 continue
@@ -128,7 +155,7 @@ def os_arch():
 def helpMenu():
     try:
         while True:
-            os.system("title AutoZoom (Помощь)")
+            setTitle("AutoZoom (Помощь)", getOS())
             appendLog('Help menu opened')
             clear()
             global version
@@ -142,6 +169,7 @@ def helpMenu():
             print(f' {BRED}5.{RESET} Связаться с автором')
             print(f' {BRED}6.{RESET} Сводка информации')
             print(f' {BRED}7.{RESET} В главное меню')
+            
             help_choose = input(f'\n > {BRED}')
             
             if help_choose == '1':
@@ -196,7 +224,18 @@ def helpMenu():
                 clear()
             if help_choose == '6':
                 clear()
-                appendLog(f'Showing system information:\n=============================================\nHelpful data for fault search:\n\nOS: {platform.system()}\nRelease: {platform.release()}\nArch: {os_arch()}\nPy Ver: {platform.python_version()}\nPIP Ver: {pip.__version__}\nImpl: {platform.python_implementation()}\nRev: {platform.python_revision()}\nPy Path: {sys.path[4]}\nAZ Ver: {version}\nAZ User: {getpass.getuser()}\nAZ Path: {path}\n=============================================')
+                
+                if getState("RBTray.exe"):
+                    rbtray = f'{BGREEN}Активен{RESET}'
+                else:
+                    rbtray = f'{BRED}Неактивен{RESET}'
+                    
+                if rpc.connected:
+                    dsrpc = f'{BGREEN}Активен{RESET}'
+                else:
+                    dsrpc = f'{BRED}Неактивен{RESET}'
+                    
+                appendLog(f'Showing system information:\n=============================================\nHelpful data for fault search:\n\nOS: {platform.system()}\nRelease: {platform.release()}\nArch: {os_arch()}\nPy Ver: {platform.python_version()}\nPIP Ver: {pip.__version__}\nImpl: {platform.python_implementation()}\nRev: {platform.python_revision()}\nPy Path: {sys.path[4]}\nAZ Ver: {version}\nAZ User: {getpass.getuser()}\nAZ User Home: {Path.home()}\nAZ Path: {path}\nRBTray: {str(getState("RBTray.exe"))}\nRPC: {str(rpc.connected)}\n=============================================')
                 print(f'{BBLACK}»{RESET} Информация о системе\n')
                 print(' Система:')
                 print(f'  {BBLACK}•{RESET} ОС: {YELLOW}{platform.system()}{RESET}')
@@ -211,13 +250,17 @@ def helpMenu():
                 print('\n AutoZoom:')
                 print(f'  {BBLACK}•{RESET} Версия: {YELLOW}{version}{RESET}')
                 print(f'  {BBLACK}•{RESET} Пользователь: {YELLOW}{getpass.getuser()}{RESET}')
+                print(f'  {BBLACK}•{RESET} Папка пользователя: {BRED}{Path.home()}{RESET}')
                 print(f'  {BBLACK}•{RESET} Расположение: {BRED}{path}{RESET}')
+                print('\n Интеграции:')
+                print(f'  {BBLACK}•{RESET} RBTray: {rbtray}')
+                print(f'  {BBLACK}•{RESET} Discord RPC: {dsrpc}')
                 none = input('\n > ')
                 clear()
             elif help_choose == '7':
                 rpc.inMenu()
                 clear()
-                os.system("title AutoZoom (Главная)")
+                setTitle("AutoZoom (Главная)", getOS())
                 return
             else:
                 clear()
@@ -227,14 +270,84 @@ def helpMenu():
         clear()
         return
 
+def devMenu():
+    try:
+        while True:
+            setTitle("AutoZoom (Отладка)", getOS())
+            appendLog('Help menu opened')
+            
+            clear()
+            
+            print(f'{BBLACK}»{RESET} Меню отладки\n')
+            print(f' {BRED}1.{RESET} PlaySound test')
+            print(f' {BRED}2.{RESET} WinSound test')
+            print(f' {BRED}3.{RESET} Play-audio test')
+            print(f' {BRED}4.{RESET} OS check test')
+            print(f' {BRED}5.{RESET} Telegram test')
+            print(f' {BRED}6.{RESET} Color test')
+            print(f' {BRED}7.{RESET} Exit to menu')
+            
+            choose = input(f'\n > {BRED}')
+            
+            if choose == '1':
+                from playsound import playsound
+                playsound(sounds_folder+"debug.wav")
+                continue
+            
+            elif choose == '2':
+                import winsound
+                winsound.PlaySound(sounds_folder+"debug.wav", winsound.SND_FILENAME)
+                continue
+                
+            elif choose == '3':
+                os.system(f'play-audio {sounds_folder}debug.wav')
+                continue
+                
+            elif choose == '4':
+                clear()
+                none = input(f'{RESET}{getOS()}\n\n > ')
+                continue
+                
+            elif choose == '5':
+                clear()
+                import telegram_send
+                telegram_send.send(messages=["Telegram message test"], parse_mode="markdown", conf=files_folder+"telegram.conf")
+                continue
+                
+            elif choose == '6':
+                clear()
+                print(f'{BLACK}███{RED}███{GREEN}███{YELLOW}███{BLUE}███{MAGENTA}███{CYAN}███{WHITE}███')
+                print(f'{BBLACK}███{BRED}███{BGREEN}███{BYELLOW}███{BBLUE}███{BMAGENTA}███{BCYAN}███{BWHITE}███')
+                print(f'{RESET}RESET')
+                print(f'{REVERSE}REVERSE{RESET}')
+                print(f'{ULINE}UNDERLINE{RESET}')
+                none = input(RESET+'\n > ')
+                continue
+                
+            elif choose == '7':
+                rpc.inMenu()
+                clear()
+                setTitle("AutoZoom (Главная)", getOS())
+                return
+                
+            else:
+                clear()
+                continue
+                
+    except KeyboardInterrupt:
+        rpc.inMenu()
+        clear()
+        return
+        
+
 def updater(serv_ver, version):
     try:
         while True:
-            os.system("title AutoZoom (Обновления)")
+            setTitle("AutoZoom (Обновления)", getOS())
             appendLog('Updater menu opened')
             clear()
             
-            if float(serv_ver) > float(version):
+            if getConfig("update_check") and float(serv_ver) > float(version):
                 show_version = f' ({BRED}!{RESET})'
                 serv_ver = serv_ver.rstrip('\n')
                 show_action = f'Обновить до {BGREEN}{serv_ver}{RESET}'
@@ -256,6 +369,8 @@ def updater(serv_ver, version):
             print(f' {BRED}1.{RESET} {show_action}')
             print(f' {BRED}2.{RESET} Список изменений')
             print(f' {BRED}3.{RESET} В главное меню')
+            if not getConfig("update_check"):
+                print(f'\n{BRED}Внимание!{RESET} У вас выключена проверка обновлений.\nЕсли это было сделанно временно - включите её в настройках.')
             updater_choose = input(f'\n > {BRED}')
             
             if updater_choose == '1':
@@ -266,7 +381,7 @@ def updater(serv_ver, version):
                     print(f'{RESET}Подтвердите действие:\n')
                     print(f' {BRED}1.{RESET} Установить')
                     print(f' {BRED}2.{RESET} Отменить')
-                    updater_decide = input('\n > ')
+                    updater_decide = input(f'\n > {BRED}')
                     
                     if updater_decide == '1':
                         appendLog('Trying to update AutoZoom')
@@ -276,14 +391,14 @@ def updater(serv_ver, version):
                             wget.download('https://www.end-play.xyz/AutoZoomLatest.zip', out='AutoZoomLatest.zip')
                             appendLog('Latest zip downloaded')
                         except Exception as exp:
-                            print(f'Не удалось загрузить архив с последней версией.\nПроверьте подключение к сети и повторите попытку.\n\nСтатус сервера центра обновлений:\n{BRED}https://status.end-play.xyz/786373747{RESET}')
+                            print(f'{RESET}Не удалось загрузить архив с последней версией.\nПроверьте подключение к сети и повторите попытку.\n\nСтатус сервера центра обновлений:\n{BRED}https://status.end-play.xyz/786373747{RESET}')
                             appendLog(f'Failed to download zip: {exp}')
-                            none = input('\n > ')
+                            none = input(f'\n > {BRED}')
                             continue
 
                         with ZipFile('AutoZoomLatest.zip', 'r') as zipObj:
                             zipObj.extractall()
-                            print('Все файлы были успешно загружены')
+                            print(f'{RESET}Все файлы были успешно загружены')
                             appendLog('Latest zip extracted')
                         
                         if os.path.exists("AutoZoomLatest.zip"):
@@ -291,10 +406,10 @@ def updater(serv_ver, version):
                             appendLog('Latest used zip deleted')
                         
                         clear()
-                        none = input('Обновление завершено, перезапустите AutoZoom.\n\n > ')
+                        none = input(f'{RESET}Обновление завершено, перезапустите AutoZoom.\n\n > ')
                         rpc.disconnect()
                         clear()
-                        print(f'Закрываем приложение {BGREEN}AutoZoom{RESET}...')
+                        print(f'{RESET}Закрываем приложение {BGREEN}AutoZoom{RESET}...')
                         appendLog('Exiting AutoZoom after an update')
                         sys.exit()
                     elif updater_decide == '2':
@@ -317,6 +432,7 @@ def updater(serv_ver, version):
                     none = input('\n > ')
                     continue
                 except Exception as exp:
+                    clear()
                     print(f'{RESET}Не удалось загрузить чейнджлог.\nПроверьте подключение к сети и повторите попытку.\n\nСтатус сервера центра обновлений:\n{BRED}https://status.end-play.xyz/786373747{RESET}')
                     appendLog(f'Failed to check changelog: {exp}')
                     none = input('\n > ')
@@ -326,7 +442,7 @@ def updater(serv_ver, version):
                 rpc.inMenu()
                 clear()
                 appendLog('Returning to main menu')
-                os.system("title AutoZoom (Главная)")
+                setTitle("AutoZoom (Главная)", getOS())
                 return
                 
             else:
@@ -338,10 +454,10 @@ def updater(serv_ver, version):
         return
 
 if __name__ == '__main__':
-    os.system("title Загрузка main...")
     from functions import getConfig
-    from daemon import clear
+    from daemon import clear, getOS, setTitle
     import time
+    setTitle("Загрузка main...", getOS())
     clear()
     
     if getConfig("run_fullscreen"):
@@ -349,6 +465,6 @@ if __name__ == '__main__':
         time.sleep(.25)
         keyboard.release('alt, enter')
         
-    os.system("title AutoZoom (Главная)")
+    setTitle("AutoZoom (Главная)", getOS())
     mainMenu()
     sys.exit()
