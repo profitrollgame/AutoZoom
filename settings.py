@@ -412,6 +412,13 @@ def settings3():
                 logs_val = f'{BRED}Выкл.{RESET}'
             else:
                 logs_val = f'{BRED}ERROR{RESET}'
+                
+            if getConfig("remove_old"):
+                remove_val = f'{BGREEN}Вкл.{RESET}'
+            elif not getConfig("remove_old"):
+                remove_val = f'{BRED}Выкл.{RESET}'
+            else:
+                remove_val = f'{BRED}ERROR{RESET}'
              
             shutdown_time_val = getConfig("shutdown_timeout")
             start_val = getConfig("start")
@@ -427,11 +434,14 @@ def settings3():
 
             print(f'  {BRED}3.{RESET} Добавить в автозапуск')
             print(f'     {BBLACK}{winOnly(BRED, BBLACK, sysname, end=" ")}Автоматически запускать демона при входе в систему\n')
+            
+            print(f'  {BRED}4.{RESET} Удалять старые конференции ({remove_val})')
+            print(f'     {BBLACK}Автоматически удалять одноразовые конференции которые были до дня запуска\n')
 
-            print(f'  {BRED}4.{RESET} Сбросить все настройки')
+            print(f'  {BRED}5.{RESET} Сбросить все настройки')
             print(f'     {BBLACK}Восстановить настройки по умолчанию\n')
 
-            print(f'  {BRED}5.{RESET} Назад')
+            print(f'  {BRED}6.{RESET} Назад')
             print(f'     {BBLACK}Вернуться на предыдущую страницу{RESET}\n')
 
             print(f' {BBLACK}Для переключения параметров Вкл/Выкл просто введите номер{RESET}') #\n Если окно приложения слишком мелкое - увеличьте его или листайте это меню{RESET}')
@@ -468,18 +478,18 @@ def settings3():
                         
                         shutil.copyfile('daemon.bat', 'startdaemon.bat')
                         
-                        with open('startdaemon.bat', 'r') as f :
+                        with open('startdaemon.bat', 'r', encoding='utf-8') as f :
                             filedata = f.read()
                             filedata = filedata.replace('python daemon.py', f'python {path}\\daemon.py')
                         
-                        with open('startdaemon.bat', 'w') as f:
+                        with open('startdaemon.bat', 'w', encoding="utf-8") as f:
                             f.write(filedata)
                             f.close()
 
                         swl.create_lnk(f'{path}\\startdaemon.bat', f'{pathlib.Path.home()}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\AutoZoomDaemon.lnk')
                         appendLog('Autorun script added')
                         
-                        none = input(f'Демон AutoZoom был добавлен в автозапуск.\nПуть: {BRED}{pathlib.Path.home()}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\AutoZoomDaemon.lnk{RESET}\n\n > ')
+                        none = input(f'{RESET}Демон AutoZoom был добавлен в автозапуск.\nПуть: {BRED}{pathlib.Path.home()}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\AutoZoomDaemon.lnk{RESET}\n\n > ')
                         continue
                         
                     except Exception as exp:
@@ -492,8 +502,12 @@ def settings3():
                     
                 else:
                     continue
-
+                    
             elif settings_choose == '4':
+                setConfig("remove_old", not getConfig("remove_old"))
+                appendLog(f'Changed option "remove_old" to {getConfig("remove_old")}')
+
+            elif settings_choose == '5':
                 appendLog('Resetting configuration')
             
                 while True:
@@ -527,7 +541,7 @@ def settings3():
                 clear()
                 continue
 
-            elif settings_choose == '5':
+            elif settings_choose == '6':
                 appendLog('Returned to settings page 2')
                 clear()
                 return

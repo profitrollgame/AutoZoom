@@ -65,8 +65,11 @@ def listLessons(from_where='remove'):
 
 
 def sortLessons(dictionary):
-    dictionary.sort(key = lambda x: datetime.strptime(x['time'], '%H:%M'))
-    dictionary.sort(key = lambda x: datetime.strptime(x['date'], '%d.%m.%Y')) 
+    if getConfig("debug"):
+        print(dictionary)
+        
+    dictionary.sort(key = lambda x: datetime.strptime(x["time"], '%H:%M'))
+    dictionary.sort(key = lambda x: datetime.strptime(x["date"], '%d.%m.%Y')) 
     appendLog('Lessons dictionary sorted')
 
 
@@ -366,54 +369,70 @@ def editLesson():
          
         while True:
             clear()
+            
             try:
                 lesstime = input(f'{RESET}Введите время конференции ({BRED}ЧЧ:ММ{RESET}):\n\nОригинальное время: {BRED}{lessons_got[edi]["time"]}{RESET}\n\n > {BRED}')
-                finallesstime = (datetime.strptime(lesstime, "%H:%M"))
-                local_lessons.update({"time": lesstime})
-                abort = "skip"
-                conflict = False
-                conflictles = ''
-                confstr = 'конференцией'
                 
-                try:
-                
-                    for lesson in lessons_got:
+                if lesstime == '':
+                    finallesstime = lessons_got[edi]["time"]
+                    lesstime = lessons_got[edi]["time"]
                     
-                        if lesson["date"] == finallessdate and lesson["time"] == lesstime:
-                            conflict = True
+                    local_lessons.update({"time": lesstime})
+                    
+                else:
+                    try:
+                        finallesstime = (datetime.strptime(lesstime, "%H:%M"))
+                        finallesstime = lesstime
+                        
+                        local_lessons.update({"time": lesstime})
+                        
+                        abort = "skip"
+                        conflict = False
+                        conflictles = ''
+                        confstr = 'конференцией'
+                        
+                        try:
+                        
+                            for lesson in lessons_got:
                             
-                            if conflictles == '':
-                                conflictles = f'{CYAN}{lesson["name"]}{RESET}'
-                                confstr = 'конференцией'
-                                
-                            else:
-                                conflictles += f', {CYAN}{lesson["name"]}{RESET}'
-                                confstr = 'конференциями'
-                            
-                    if conflict:
-                        while True:
-                            clear()
-                            choice = input(f'{RESET}Время и дата конференции совпадают с {confstr} {conflictles}.\nДобавить ещё одну конференцию на то же время? ({BGREEN}Да{RESET}/{BRED}Нет{RESET})\n\n > ')
-
-                            if choice.lower() in yes_list:
-                                abort = "bypass"
-                                break
-                                
-                            elif choice.lower() in no_list:
-                                abort = "restart"
-                                break
-                                
-                            else:
-                                continue
+                                if lesson["date"] == finallessdate and lesson["time"] == lesstime:
+                                    conflict = True
                                     
-                    if abort == "restart":
+                                    if conflictles == '':
+                                        conflictles = f'{CYAN}{lesson["name"]}{RESET}'
+                                        confstr = 'конференцией'
+                                        
+                                    else:
+                                        conflictles += f', {CYAN}{lesson["name"]}{RESET}'
+                                        confstr = 'конференциями'
+                                    
+                            if conflict:
+                                while True:
+                                    clear()
+                                    choice = input(f'{RESET}Время и дата конференции совпадают с {confstr} {conflictles}.\nДобавить ещё одну конференцию на то же время? ({BGREEN}Да{RESET}/{BRED}Нет{RESET})\n\n > ')
+
+                                    if choice.lower() in yes_list:
+                                        abort = "bypass"
+                                        break
+                                        
+                                    elif choice.lower() in no_list:
+                                        abort = "restart"
+                                        break
+                                        
+                                    else:
+                                        continue
+                                            
+                            if abort == "restart":
+                                continue
+                                
+                            else:
+                                break                        
+                            
+                        except Exception as exp:
+                            none = input(exp)
+                            pass
+                    except:
                         continue
-                    else:
-                        break                        
-                    
-                except Exception as exp:
-                    none = input(exp)
-                    pass
                 
                 break
             except:
@@ -585,6 +604,32 @@ def removeAllLessons():
         
         clear()
         return
+
+
+def debugLesson():
+    try:
+        from profile import debuglink, name
+        appendLog('Debug link added to the list')
+        
+        local_lessons = {}
+        lessons_got = getLessons()
+        
+        local_lessons.update({"name": "Debug Lesson"})
+        local_lessons.update({"date": date.today().strftime("%d.%m.%Y")})
+        local_lessons.update({"time": "00:00"})
+        local_lessons.update({"link": debuglink})
+        local_lessons.update({"repeat": False})
+        local_lessons.update({"repeat_day": None})
+        local_lessons.update({"record": True})
+        
+        lessons_got.append(dict(local_lessons))
+        sortLessons(lessons_got)
+        saveJson(files_folder+'lessons.json', lessons_got)
+        
+        return f"{RESET}Конференция для отладки профиля {CYAN}{name} {RESET}была добавлена."
+        
+    except:
+        return f"{RESET}Для отладки нужен профиль {BRED}profile.py {RESET}со ссылкой на конференцию {BRED}debuglink {RESET}и именем {BRED}name{RESET}."
 
 
 def editor():

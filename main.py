@@ -36,7 +36,7 @@ import keyboard
 import getpass
 from zipfile import ZipFile
 
-version = 2.1
+version = 2.2
 path = Path(__file__).resolve().parent
 
 def mainMenu():
@@ -282,10 +282,12 @@ def devMenu():
             print(f' {BRED}1.{RESET} PlaySound test')
             print(f' {BRED}2.{RESET} WinSound test')
             print(f' {BRED}3.{RESET} Play-audio test')
-            print(f' {BRED}4.{RESET} OS check test')
-            print(f' {BRED}5.{RESET} Telegram test')
-            print(f' {BRED}6.{RESET} Color test')
-            print(f' {BRED}7.{RESET} Exit to menu')
+            print(f' {BRED}4.{RESET} playSound function test')
+            print(f' {BRED}5.{RESET} OS check test')
+            print(f' {BRED}6.{RESET} Telegram test')
+            print(f' {BRED}7.{RESET} Zoom meeting test')
+            print(f' {BRED}8.{RESET} Color test')
+            print(f' {BRED}9.{RESET} Exit to menu')
             
             choose = input(f'\n > {BRED}')
             
@@ -304,17 +306,27 @@ def devMenu():
                 continue
                 
             elif choose == '4':
+                playSound("debug")
+                continue
+                
+            elif choose == '5':
                 clear()
                 none = input(f'{RESET}{getOS()}\n\n > ')
                 continue
                 
-            elif choose == '5':
+            elif choose == '6':
                 clear()
                 import telegram_send
                 telegram_send.send(messages=["Telegram message test"], parse_mode="markdown", conf=files_folder+"telegram.conf")
                 continue
                 
-            elif choose == '6':
+            elif choose == '7':
+                clear()
+                print(editor.debugLesson())
+                none = input(f'{RESET}\n > ')
+                continue
+                
+            elif choose == '8':
                 clear()
                 print(f'{BLACK}███{RED}███{GREEN}███{YELLOW}███{BLUE}███{MAGENTA}███{CYAN}███{WHITE}███')
                 print(f'{BBLACK}███{BRED}███{BGREEN}███{BYELLOW}███{BBLUE}███{BMAGENTA}███{BCYAN}███{BWHITE}███')
@@ -324,7 +336,7 @@ def devMenu():
                 none = input(RESET+'\n > ')
                 continue
                 
-            elif choose == '7':
+            elif choose == '9':
                 rpc.inMenu()
                 clear()
                 setTitle("AutoZoom (Главная)", getOS())
@@ -382,6 +394,7 @@ def updater(serv_ver, version):
                     print(f' {BRED}1.{RESET} Установить')
                     print(f' {BRED}2.{RESET} Отменить')
                     updater_decide = input(f'\n > {BRED}')
+                    print(RESET)
                     
                     if updater_decide == '1':
                         appendLog('Trying to update AutoZoom')

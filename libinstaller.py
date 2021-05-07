@@ -116,7 +116,8 @@ if getOS() != "android":
         libs.append("playsound")
 else:
     try:
-        os.system('pkg install play-audio')
+        if not "play-audio" in os.popen('pkg list-all').read():
+            os.system('pkg install play-audio')
     except:
         appendLog("Could not install play-audio")
 ###################################

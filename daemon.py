@@ -44,12 +44,6 @@ import ast
 import inputimeout
 import telegram_send
 
-if getOS() == "windows":
-    import winsound
-    from playsound import playsound
-else:
-    from playsound import playsound
-
 menu_choose = None
 
 try:
@@ -273,7 +267,26 @@ def main(source='deamon'):
                 
                 today = date.today().strftime("%d.%m.%Y")
                 
-                if (today == lesson_date) or (getDayNum(today) == lesson_repeat_day):
+                diff = ((datetime.strptime(today, "%d.%m.%Y") - datetime.strptime(lesson_date, "%d.%m.%Y")).days)
+                
+                if getConfig("debug"):
+                    print(f'{nowtime()} Конференция {CYAN}{lesson_name}{RESET}: Разница дней {BRED}{diff}{RESET}, Повторение {BRED}{lesson_repeat}{RESET}.')
+                
+                if diff > 0 and not lesson_repeat:
+                
+                    if getConfig("remove_old"):
+                    
+                        del lessons_list[lessons_list.index(les)]
+                            
+                        saveJson(files_folder+'lessons.json', lessons_list)
+                        appendLog(f'Old lesson named {lesson_name} removed')
+                            
+                        if getConfig("debug"):
+                            print(f'{nowtime()} Старая конференция {CYAN}{lesson_name}{RESET} за {CYAN}{lesson_date} {RESET}в {BRED}{lesson_time}{RESET} удалена.')
+                        
+                        lessons_list = getLessons()
+                
+                elif (today == lesson_date) or (getDayNum(today) == lesson_repeat_day):
                     print(f'{BBLACK}================================================{RESET}\n')
                 
                     print(f'{nowtime()} Найдена конференция {CYAN}{lesson_name}{RESET} в {BRED}{lesson_time}{RESET}. Ждём начала...')

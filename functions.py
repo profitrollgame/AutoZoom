@@ -31,6 +31,7 @@ default_config = {
             "run_fullscreen": False,
             "use_rpc": True,
             "sounds": True,
+            "remove_old": True,
             "end_mode": "shutdown",
             "obs_exe": None,
             "obs_core": None,
@@ -68,6 +69,14 @@ if getOS() == "windows":
     clear = lambda: os.system('cls')
 else:
     clear = lambda: os.system('clear')
+
+
+# Импортирование игралки звуков
+if getOS() == "windows":
+    import winsound
+    from playsound import playsound
+elif getOS() == "unix":
+    from playsound import playsound
 
 
 # Установка заголовка окна cmd.exe

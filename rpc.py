@@ -6,7 +6,7 @@ import sys
 from colors import *
 from functions import *
 
-version = '2.1'
+version = '2.2'
 
 import libinstaller
 from pypresence import Presence
@@ -59,7 +59,7 @@ def waitLesson(lesson, start):
         if getConfig("use_rpc") and getOS != "android":
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_waiting', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Ожидание', state=f'Ждём начала «{lesson}»', details='Конференция не началась', start=start)
+            RPC.update(large_image='1024_cover', small_image='status_waiting', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Ожидание', state=f'Ждём начала «{lesson}»', details='Конференция не началась', start=start)
         appendLog(f'Discord RPC changed to waitLesson (Lesson: {lesson}, Start: {start})')
     except AttributeError:
         appendLog('Discord RPC failed to change status')
@@ -77,7 +77,7 @@ def onLesson(lesson, start):
         if getConfig("use_rpc") and getOS != "android":
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_lesson', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Конференция', state=f'Слушаем «{lesson}»', details='Идёт конференция', start=start)
+            RPC.update(large_image='1024_cover', small_image='status_lesson', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Конференция', state=f'Слушаем «{lesson}»', details='Идёт конференция', start=start)
         appendLog(f'Discord RPC changed to onLesson (Lesson: {lesson}, Start: {start})')
     except AttributeError:
         appendLog('Discord RPC failed to change status')
@@ -95,7 +95,7 @@ def inMenu():
         if getConfig("use_rpc") and getOS != "android":
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_menu', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Главное меню', state='Открыт список опций', details='В главном меню')
+            RPC.update(large_image='1024_cover', small_image='status_menu', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Главное меню', state='Открыт список опций', details='В главном меню')
         appendLog('Discord RPC changed to inMenu')
     except AttributeError:
         appendLog('Discord RPC failed to change status')
@@ -113,7 +113,7 @@ def shutdown(end):
         if getConfig("use_rpc") and getOS != "android":
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_shutdown', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Выключение', state='Отсчёт до авто-выключения', details='Выключение ПК', end=end)
+            RPC.update(large_image='1024_cover', small_image='status_shutdown', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Выключение', state='Отсчёт до авто-выключения', details='Выключение ПК', end=end)
         appendLog(f'Discord RPC changed to shutdown (End: {end})')
     except AttributeError:
         appendLog('Discord RPC failed to change status')
@@ -131,7 +131,7 @@ def inSettings():
         if getConfig("use_rpc") and getOS != "android":
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_settings', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Настройки', state='Открыты настройки', details='В главном меню')
+            RPC.update(large_image='1024_cover', small_image='status_settings', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Настройки', state='Открыты настройки', details='В главном меню')
         appendLog('Discord RPC changed to inSettings')
     except AttributeError:
         appendLog('Discord RPC failed to change status')
@@ -149,7 +149,7 @@ def inDebug():
         if getConfig("use_rpc") and getOS != "android":
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_debug', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Отладка', state='Открыто меню отладки', details='В меню разработчика')
+            RPC.update(large_image='1024_cover', small_image='status_debug', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Отладка', state='Открыто меню отладки', details='В меню разработчика')
         appendLog('Discord RPC changed to inDebug')
     except AttributeError:
         appendLog('Discord RPC failed to change status')
@@ -167,7 +167,7 @@ def inEditor():
         if getConfig("use_rpc") and getOS != "android":
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_editing', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Редактор', state='Открыт редактор', details='В главном меню')
+            RPC.update(large_image='1024_cover', small_image='status_editing', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Редактор', state='Открыт редактор', details='В главном меню')
         appendLog('Discord RPC changed to inEditor')
     except AttributeError:
         appendLog('Discord RPC failed to change status')
@@ -185,7 +185,7 @@ def inUpdater():
         if getConfig("use_rpc") and getOS != "android":
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_updating', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Обновление', state='Открыт центр обновлений', details='В главном меню')
+            RPC.update(large_image='1024_cover', small_image='status_updating', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Обновление', state='Открыт центр обновлений', details='В главном меню')
         appendLog('Discord RPC changed to inUpdater')
     except AttributeError:
         appendLog('Discord RPC failed to change status')
@@ -203,7 +203,7 @@ def inHelp():
         if getConfig("use_rpc") and getOS != "android":
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_support', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Помощь', state='Открыта помощь', details='В главном меню')
+            RPC.update(large_image='1024_cover', small_image='status_support', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Помощь', state='Открыта помощь', details='В главном меню')
         appendLog('Discord RPC changed to inHelp')
     except AttributeError:
         appendLog('Discord RPC failed to change status')
@@ -221,7 +221,7 @@ def lessonEnded():
         if getConfig("use_rpc") and getOS != "android":
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_waiting', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Ожидание', state=f'Ждём указаний', details='Все конференции закончились')
+            RPC.update(large_image='1024_cover', small_image='status_waiting', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Ожидание', state=f'Ждём указаний', details='Все конференции закончились')
         appendLog('Discord RPC changed to lessonEnded')
     except AttributeError:
         appendLog('Discord RPC failed to change status')
@@ -238,7 +238,7 @@ def lessonEnded():
 if __name__ == "__main__":
     try:
         RPC.connect()
-        RPC.update(large_image='1024_cover', small_image='status_settings', large_text=f'AutoZoom • v{version}\nhttp://bit.ly/auto_zoom', small_text='Отладка', state='Модуль Discord RPC запущен в режиме тестирования', details='Режим отладки')
+        RPC.update(large_image='1024_cover', small_image='status_settings', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Отладка', state='Модуль Discord RPC запущен в режиме тестирования', details='Режим отладки')
         appendLog('Discord RPC changed to debug')
     except AttributeError:
         appendLog('Discord RPC failed to change status')
