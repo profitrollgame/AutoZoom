@@ -194,7 +194,7 @@ def playSound(soundname, timing=''):
                     
                     if getConfig("debug"):
                         print(f'{timing} Не удалось проиграть playsound звук "{soundname}" (Ошибка: {exp})')
-                        
+                
         elif getOS() == "android":
         
             try:
@@ -202,7 +202,7 @@ def playSound(soundname, timing=''):
                 
             except Exception as exp:
                 appendLog(f'Could not play play-audio: {exp}')
-                    
+            
         else:
         
             try:
@@ -213,6 +213,16 @@ def playSound(soundname, timing=''):
                 
                 if getConfig("debug"):
                     print(f'{timing} Не удалось проиграть playsound звук "{soundname}" (Ошибка: {exp})')
+
+
+# Функция удаления ненужного мусора из строки
+def strCleaner(string):
+    
+    output = string.replace('"', '\"').replace('\n', '')
+    
+    appendLog(f"String cleaned: {output}")
+    
+    return output
 
 
 # Функция добавления переменных, если их нет
@@ -311,7 +321,7 @@ def setConfig(some_var, some_val):
                             config_list[some_var] = some_val
                             saveJson(files_folder+'config.json', config_list)
                             appendLog(f'Changed variable "{somevar}" to {some_val}')
-                            
+                
             except:
                 return "Error"
 
@@ -392,7 +402,7 @@ def getState(process="CptHost.exe"):
                 return True
             else:
                 return False
-                    
+            
         except Exception as exp:
             appendLog(f'Failed to get state using tasklist: {exp}')
             

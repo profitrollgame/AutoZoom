@@ -30,7 +30,7 @@ def listLessons(from_where='remove'):
                 repeat = 'Вкл.'
             else:
                 repeat = 'Выкл.'
-                
+            
             if les[1]["record"]:
                 record = 'Вкл.'
             else:
@@ -40,7 +40,7 @@ def listLessons(from_where='remove'):
                 repeat_day = getDay(les[1]["repeat_day"])
             except:
                 repeat_day = 'Не повторяется'
-                
+            
             length = len(str(les[0]))
             
             spacer_all = 6 * ' '
@@ -58,7 +58,7 @@ def listLessons(from_where='remove'):
 
         if from_where == 'editor':
             none = input('\n\n > ')
-            
+        
     except KeyboardInterrupt:
         clear()
         return
@@ -67,7 +67,7 @@ def listLessons(from_where='remove'):
 def sortLessons(dictionary):
     if getConfig("debug"):
         print(dictionary)
-        
+    
     dictionary.sort(key = lambda x: datetime.strptime(x["time"], '%H:%M'))
     dictionary.sort(key = lambda x: datetime.strptime(x["date"], '%d.%m.%Y')) 
     appendLog('Lessons dictionary sorted')
@@ -98,6 +98,7 @@ def addLesson():
         lessons_got = getLessons()
 
         lessname = input(f'{RESET}Введите (своё) имя конференции:\n{BBLACK}Нужно лишь для отображения в Discord и самом AutoZoom{RESET}\n\n > {CYAN}')
+        lessname = strCleaner(lessname)
         local_lessons.update({"name": lessname})
         
         while True:
@@ -143,9 +144,9 @@ def addLesson():
                         finallessdate = lessdate
                     except:
                         continue
-                    
+                
                 local_lessons.update({"date": finallessdate})
-                    
+                
                 break
             except:
                 continue
@@ -175,7 +176,7 @@ def addLesson():
                             else:
                                 conflictles += f', {CYAN}{lesson["name"]}{RESET}'
                                 confstr = 'конференциями'
-                            
+                    
                     if conflict:
                         while True:
                             clear()
@@ -191,7 +192,7 @@ def addLesson():
                                 
                             else:
                                 continue
-                                    
+                            
                     if abort == "restart":
                         continue
                     else:
@@ -207,6 +208,7 @@ def addLesson():
         
         clear()
         lesslink = input(f'{RESET}Введите ссылку на конференцию:\n{BBLACK}Формат: {BRED}https://us01web.zoom.us/j/ИДЕНТИФИКАТОР?pwd=ПАРОЛЬ{RESET}\n{BBLACK}Либо введите {YELLOW}1 {BBLACK}для добавления по номеру и паролю{RESET}\n\n > {BRED}').replace(" ", "")
+        lesslink = strCleaner(lesslink)
 
         if lesslink.replace(' ', '') == '1':
             clear()
@@ -255,7 +257,7 @@ def addLesson():
                 finallessrecord = False
                 local_lessons.update({"record": finallessrecord})
                 break
-                
+            
         
         lessons_got.append(dict(local_lessons))
         sortLessons(lessons_got)
@@ -297,7 +299,7 @@ def editLesson():
                 except:
                     clear()
                     continue
-                
+            
             try:
                 probe = lessons_got[edi]["name"]
                 break
@@ -312,6 +314,8 @@ def editLesson():
 
         clear()
         lessname = input(f'{RESET}Введите (своё) имя конференции:\n{BBLACK}Нужно лишь для отображения в Discord и самом AutoZoom{RESET}\n\nОригинальное имя: {CYAN}{lessons_got[edi]["name"]}{RESET}\n\n > {CYAN}')
+        lessname = strCleaner(lessname)
+        
         if lessname == '':
             lessname = lessons_got[edi]["name"]
         local_lessons.update({"name": lessname})
@@ -360,9 +364,9 @@ def editLesson():
                         finallessdate = lessdate
                     except:
                         continue
-                    
+                
                 local_lessons.update({"date": finallessdate})
-                    
+                
                 break
             except:
                 continue
@@ -405,7 +409,7 @@ def editLesson():
                                     else:
                                         conflictles += f', {CYAN}{lesson["name"]}{RESET}'
                                         confstr = 'конференциями'
-                                    
+                            
                             if conflict:
                                 while True:
                                     clear()
@@ -440,6 +444,7 @@ def editLesson():
         
         clear()
         lesslink = input(f'{RESET}Введите ссылку на конференцию:\n{BBLACK}Формат: {BRED}https://us01web.zoom.us/j/ИДЕНТИФИКАТОР?pwd=ПАРОЛЬ{RESET}\n{BBLACK}Либо введите {YELLOW}1 {BBLACK}для добавления по номеру и паролю{RESET}\n\n > {BRED}').replace(" ", "")
+        lesslink = strCleaner(lesslink)
 
         if lesslink.replace(' ', '') == '1':
             clear()
@@ -447,10 +452,10 @@ def editLesson():
             clear()
             lesspasswd = input(f'{RESET}Введите код доступа (пароль) конференции:\n\n > {BRED}')
             lesslink = f'https://us01web.zoom.us/j/{lessid.replace(" ", "")}?pwd={lesspasswd.replace(" ", "")}'
-            
+        
         if lesslink == '':
             lesslink = lessons_got[edi]["link"]
-            
+        
         local_lessons.update({"link": lesslink})
         
         while True:
@@ -511,7 +516,7 @@ def editLesson():
                 finallessrecord = False
                 local_lessons.update({"record": finallessrecord})
                 break
-                
+            
         del lessons_got[edi]
         lessons_got.append(dict(local_lessons))
         sortLessons(lessons_got)
@@ -548,7 +553,7 @@ def removeLesson():
                 except:
                     clear()
                     continue
-                
+            
             try:
                 del_name = lessons_local[rem]["name"]
                 del_date = lessons_local[rem]["date"]
@@ -560,7 +565,7 @@ def removeLesson():
                 time.sleep(3)
                 clear()
                 continue
-                
+            
             sortLessons(lessons_local)
             saveJson(files_folder+'lessons.json', lessons_local)
             clear()
@@ -586,7 +591,7 @@ def removeAllLessons():
                 with open(files_folder+'lessons.json', 'w', encoding="utf-8") as f:
                     f.write("[]")
                     f.close()
-                    
+                
                 appendLog('All lessons removed')
                 clear()
                 none = input('Все конференции были удалены.\n\n > ')
@@ -679,7 +684,7 @@ def editor():
                 mainMenu()
             else:
                 continue
-                
+            
     except KeyboardInterrupt:
         appendLog('Exiting back to main menu')
         rpc.inMenu()

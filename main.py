@@ -36,7 +36,7 @@ import keyboard
 import getpass
 from zipfile import ZipFile
 
-version = 2.2
+version = 2.3
 path = Path(__file__).resolve().parent
 
 def mainMenu():
@@ -63,7 +63,7 @@ def mainMenu():
                 except Exception as exp:
                     appendLog(f'Version number load failed {exp}')
                     setTitle("Ошибка загрузки данных", getOS())
-                    print(f'Не удалось загрузить данные о последней версии.\nПроверьте подключение к сети и повторите попытку.\n\nСтатус сервера центра обновлений:\n{BRED}https://status.end-play.xyz/786373747{RESET}')
+                    print(f'Не удалось загрузить данные о последней версии.\nПроверьте подключение к сети и повторите попытку.\n\nСтатус сервера центра обновлений:\n{BRED}https://stats.uptimerobot.com/OqwR9iAqBg{RESET}')
 
                     todo = input(f'\nВведите {BRED}ignore {RESET}чтобы выключить проверку обновлений и продолжить\nлибо введите что угодно иное чтобы закрыть программу.\n\n > {BRED}')
 
@@ -167,8 +167,10 @@ def helpMenu():
             print(f' {BRED}3.{RESET} Центр поддержки')
             print(f' {BRED}4.{RESET} Telegram проекта')
             print(f' {BRED}5.{RESET} Связаться с автором')
-            print(f' {BRED}6.{RESET} Сводка информации')
-            print(f' {BRED}7.{RESET} В главное меню')
+            print(f' {BRED}6.{RESET} Поддержать проект')
+            print(f' {BRED}7.{RESET} Список поддержавших')
+            print(f' {BRED}8.{RESET} Сводка информации')
+            print(f' {BRED}9.{RESET} В главное меню')
             
             help_choose = input(f'\n > {BRED}')
             
@@ -222,7 +224,27 @@ def helpMenu():
                     appendLog(f'Failed to open AutoZoom\'s developer Telegram: {exp}')
                     none = input(f'{RESET}Не удалось открыть страницу вашего браузера.\nВы можете открыть адрес самостоятельно: {BRED}https://t.me/profitroll{RESET}\n\n > ')
                 clear()
-            if help_choose == '6':
+            elif help_choose == '6':
+                try:
+                    clear()
+                    appendLog('Opened AutoZoom\'s donation page')
+                    webbrowser.open("https://www.end-play.xyz/autozoom/donate")
+                except Exception as exp:
+                    clear()
+                    appendLog(f'Failed to open AutoZoom\'s donation page: {exp}')
+                    none = input(f'{RESET}Не удалось открыть страницу вашего браузера.\nВы можете открыть адрес самостоятельно: {BRED}https://www.end-play.xyz/autozoom/donate{RESET}\n\n > ')
+                clear()
+            elif help_choose == '7':
+                try:
+                    clear()
+                    print(f'{BBLACK}»{RESET} Список поддержавших проект:\n\n{(requests.get("https://www.end-play.xyz/AutoZoomDonors.txt").text).replace("-", RESET+" •"+BRED)}{RESET}')
+                except Exception as exp:
+                    clear()
+                    appendLog(f'Failed to load donation list {exp}')
+                    print(f'{RESET}Не удалось загрузить данные о списке поддержавших проект.\nВы можете посмотреть его самостоятельно: {BRED}https://www.end-play.xyz/AutoZoomDonors.txt')
+                none = input('\n > ')
+                clear()
+            if help_choose == '8':
                 clear()
                 
                 if getState("RBTray.exe"):
@@ -257,7 +279,7 @@ def helpMenu():
                 print(f'  {BBLACK}•{RESET} Discord RPC: {dsrpc}')
                 none = input('\n > ')
                 clear()
-            elif help_choose == '7':
+            elif help_choose == '9':
                 rpc.inMenu()
                 clear()
                 setTitle("AutoZoom (Главная)", getOS())
