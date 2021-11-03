@@ -55,12 +55,12 @@ except Exception as exp:
 
 def nowtime(seconds=True, noice=True, color=True):
     now = datetime.now()
-    if seconds == True:
+    if seconds:
         justnow = now.strftime("%H:%M:%S")
     else:
         justnow = now.strftime("%H:%M")
     
-    if noice == True:
+    if noice:
         if not color:
             beautiful = f'[{justnow}]'
         else:
@@ -70,7 +70,7 @@ def nowtime(seconds=True, noice=True, color=True):
             beautiful = f'{justnow}'
         else:
             beautiful = f'{CYAN}{justnow}{RESET}'
-        
+    
     return beautiful
 
 def act(x):
@@ -83,7 +83,7 @@ def waitStart(runTime, action):
     startTime = time(*(map(int, runTime.split(':'))))
     while startTime > datetime.today().time():
         sleep(2)
-        
+    
     return action
 
 def getPair(line):
@@ -97,15 +97,15 @@ def getLessons():
             f.write("[]")
             f.close()
             lessons_list = []
-            
+        
         appendLog(f'Created lessons.json')
     else:
         with open(files_folder+'lessons.json', encoding="utf-8") as json_file:
             lessons_list = json.load(json_file)
             json_file.close()
-            
+        
         appendLog('File lessons.json loaded')
-            
+        
     return lessons_list
 
 
@@ -141,7 +141,7 @@ def main(source='deamon'):
     except:
         profilename = ''
         pass
-        
+    
     ##########################################
 
     try:
@@ -200,14 +200,14 @@ def main(source='deamon'):
                 elif obs_choice.lower() in no_list:
                     setConfig("obs_exe", "Disabled")
                     setConfig("obs_core", "Disabled")
-                        
+                    
                     clear()
                     break
                     
                 else:
                     clear()
                     continue
-                                
+        
         if not os.path.exists(files_folder+'telegram.conf'):
             clear()
             tg_choice = input(f'{RESET}Хотите использовать Telegram бота? {RESET}({BGREEN}Да{RESET}/{BRED}Нет{RESET}): ')
@@ -218,7 +218,7 @@ def main(source='deamon'):
                 print(f'чтобы хорошо понимать что сейчас от вас нужно.')
                 none = input('\n > ')
                 clear()
-                            
+                
                 while True:
                     clear()
                     
@@ -229,16 +229,16 @@ def main(source='deamon'):
                         appendLog(f'Failed to configure Telegram Send: {exp}')
                         clear()
                         continue
-                        
+                    
                     telegram_send.send(messages=[f"🎊 Конфигурация правильна, всё работает!"], parse_mode="markdown", conf=f"{files_folder}telegram.conf")
                     appendLog('Telegram Send successfully configured')
                     clear()
-                    
+                
             elif tg_choice.lower() in no_list:
                 with open(files_folder+'telegram.conf', 'w', encoding="utf-8") as f:
                     f.write('Not Configured')
                     f.close()
-                    
+        
         lessons_count = 0
         
         try:
@@ -277,7 +277,7 @@ def main(source='deamon'):
                     if getConfig("remove_old"):
                     
                         del lessons_list[lessons_list.index(les)]
-                            
+                        
                         saveJson(files_folder+'lessons.json', lessons_list)
                         appendLog(f'Old lesson named {lesson_name} removed')
                             
@@ -308,14 +308,14 @@ def main(source='deamon'):
                             while i < 10:
                                 lesson_url = lesson_url.replace(f"https://us0{i}web.zoom.us/j/", "zoommtg://zoom.us/join?action=join&confno=")
                                 i += 1
-                                
+                            
                             lesson_url = lesson_url.replace("&", "^&")
                             lesson_url = lesson_url.replace("?pwd", "^&pwd")
                             
                             if getConfig("debug"):
                                 print(f'{nowtime()} Ориг. ссылка: {BRED}{lesson_url_original}{RESET}')
                                 print(f'{nowtime()} Измен. ссылка: {BRED}{lesson_url}{RESET}')
-                                
+                            
                             appendLog(f'Replaced link {lesson_url_original} with {lesson_url}')
                             
                             os.system(f'start {lesson_url}')
@@ -324,7 +324,7 @@ def main(source='deamon'):
                             
                             if i == 0:
                                 lesson_url = lesson_url.replace(f"https://zoom.us/j/", "zoommtg://zoom.us/join?action=join&confno=")
-                                
+                            
                             while i < 10:
                                 lesson_url = lesson_url.replace(f"https://us0{i}web.zoom.us/j/", "zoommtg://zoom.us/join?action=join&confno=")
                                 i += 1
@@ -334,7 +334,7 @@ def main(source='deamon'):
                             if getConfig("debug"):
                                 print(f'{nowtime()} Ориг. ссылка: {BRED}{lesson_url_original}{RESET}')
                                 print(f'{nowtime()} Измен. ссылка: {BRED}{lesson_url}{RESET}')
-                                
+                            
                             appendLog(f'Replaced link {lesson_url_original} with {lesson_url}')
                             
                             if sysname == "android":
@@ -357,7 +357,7 @@ def main(source='deamon'):
                     if easteregg_number == 69420:
                         appendLog('Easteregg summoned')
                         webbrowser.open('https://www.pornhub.com/view_video.php?viewkey=ph5f3eb1e206aa8')
-                        
+                    
                     print(f'{nowtime()} Ждём {BRED}10 секунд{RESET} до отслеживания Zoom...')
                     time.sleep(10)
                     
@@ -374,7 +374,7 @@ def main(source='deamon'):
                             
                             if retries == 1:
                                 appendLog('Lesson delay found')
-                                
+                            
                             time.sleep(5)
                             retries += 1
                             
@@ -388,7 +388,7 @@ def main(source='deamon'):
                                 tgsend(getConfig("telegram_enabled"), f"⚠ Задержка конференции *{lesson_name}* превысила 3 минуты {profilename}")
                                 print(f'{nowtime()} Задержка конференции {CYAN}{lesson_name}{RESET} превысила {BRED}3{RESET} минуты')
                                 appendLog(f'Lesson delay exceeded: {retries} retries')
-                                
+                            
                             if retries == 120:
                                 playSound("warning", nowtime())
                                 tgsend(getConfig("telegram_enabled"), f"⚠ Задержка конференции *{lesson_name}* превысила 10 минут {profilename}")
@@ -405,7 +405,7 @@ def main(source='deamon'):
                                     playSound("warning", nowtime())
                                     tgsend(getConfig("telegram_enabled"), f"⚠ Задержка конференции *{lesson_name}* превысила 30 минут, конференция сбошена {profilename}")
                                     print(f'{nowtime()} Задержка конференции {CYAN}{lesson_name}{RESET} превысила {BRED}30{RESET} минут, конференция сброшена')
-                                    
+                                
                                 appendLog(f'Lesson delay exceeded: {retries} retries')
                                 
                                 playSound("ended", nowtime())
@@ -423,17 +423,17 @@ def main(source='deamon'):
                                         
                                         if getConfig("debug"):
                                             print(f'{nowtime()} Не удалось остановить процесс OBS.')
-                                    
+                                
                                 if not lesson_repeat:
                                     del lessons_list[lessons_list.index(les)]
-                                        
+                                    
                                     saveJson(files_folder+'lessons.json', lessons_list)
-                                        
+                                    
                                     if getConfig("debug"):
                                         print(f'{nowtime()} Конференция {CYAN}{lesson_name}{RESET} в {BRED}{lesson_time}{RESET} удалена.')
                                 
                                 print(f'\n{BBLACK}================================================{RESET}\n\n')
-                                    
+                                
                                 firstshow = True
                                 
                                 lessons_count = lessons_count+1
@@ -450,7 +450,7 @@ def main(source='deamon'):
                             try:
                                 if getConfig("debug"):
                                     print(f'{nowtime()} Импортированы клавиши старта и остановки записи ({YELLOW}{getConfig("start")}{RESET} и {YELLOW}{getConfig("stop")}{RESET}).')
-                                    
+                                
                                 start = getConfig("start")
                                 stop = getConfig("stop")
                             except:
@@ -486,14 +486,14 @@ def main(source='deamon'):
                                             try:
                                                 obs_process = subprocess.Popen(getConfig("obs_exe"), cwd=getConfig("obs_core"))
                                                 appendLog(f'Sent instruction to open OBS')
-                                                time.sleep(5)
+                                                time.sleep(getConfig("obs_delay"))
                                             except Exception as exp:
                                                 appendLog(f'Failed to open OBS: {exp}')
                                                 print(f'{nowtime()} Не удалось открыть OBS для записи.')
                                         else:
                                             if getConfig("debug"):
                                                 print(f'{nowtime()} Не включаем OBS для записи.')
-                                                
+                                            
                                         firstshow = False
                                     
                                     if lesson_obs:
@@ -504,12 +504,12 @@ def main(source='deamon'):
                                             record_now = True
                                             print(f'{nowtime()} Сигнал записи OBS отправлен.')
                                             playSound("recordstart", nowtime())
-                                            
+                                    
                                     lesson_duration = (datetime.now() - lesson_start).total_seconds()
-                                        
+                                    
                                     if getConfig("debug"):
                                         print(f'{nowtime()} Zoom подключён. Конференция идёт уже {BGREEN}{str(lesson_duration)} сек{RESET}. ({BGREEN}{str(round(lesson_duration/60, 2))} мин{RESET}.)')
-                                        
+                                    
                                     time.sleep(5)
                                     continue
                                 else:
@@ -518,26 +518,26 @@ def main(source='deamon'):
                                     
                                     if getConfig("debug"):
                                         print(f'{nowtime()} {BRED}Конференция не обнаружена! {RESET}Повторная проверка через {BRED}10 {RESET}секунд...')
-                                        
+                                    
                                     time.sleep(10)
                                     continue
                                     
                             if getConfig("debug"):
                                 print(f'{nowtime()} Zoom отключился. Процесс {BRED}CptHost.exe{RESET} более не существует.')
-                                
+                            
                             appendLog(f'CptHost.exe not found, Zoom disconnected')
                             
                             setTitle(f'Конференция "{lesson_name}" завершилась', sysname)
-                                
+                            
                             if getConfig("debug"):
                                 tgsend(getConfig("telegram_enabled"), f"◀ Конференция *{lesson_name}* длилась *{str(round(lesson_duration/60, 2))}* мин.")
                                 print(f'{nowtime()} Конференция длилась {BGREEN}{str(lesson_duration)} сек{RESET}. ({BGREEN}{str(round(lesson_duration/60, 2))} мин{RESET}.)')
                             else:
                                 tgsend(getConfig("telegram_enabled"), f"◀ Конференция *{lesson_name}* длилась *{str(int(lesson_duration/60))}* мин.")
                                 print(f'{nowtime()} Конференция длилась {BGREEN}{str(lesson_duration)} сек{RESET}. ({BGREEN}{str(int(lesson_duration/60))} мин{RESET}.)')
-                                
+                            
                             appendLog(f'Lesson {lesson_name} duration was {str(int(lesson_duration/60))} m. ({str(lesson_duration)} s.)')
-                                
+                            
                             playSound("ended", nowtime())
                             
                             if lesson_obs:
@@ -559,15 +559,15 @@ def main(source='deamon'):
                                 
                             if not lesson_repeat:
                                 del lessons_list[lessons_list.index(les)]
-                                    
+                                
                                 saveJson(files_folder+'lessons.json', lessons_list)
                                 appendLog(f'Lesson named {lesson_name} removed')
-                                    
+                                
                                 if getConfig("debug"):
                                     print(f'{nowtime()} Конференция {CYAN}{lesson_name}{RESET} в {BRED}{lesson_time}{RESET} удалена.')
                             
                             print(f'\n{BBLACK}================================================{RESET}\n\n')
-                                
+                            
                             firstshow = True
                             
                             lessons_count = lessons_count+1
@@ -586,10 +586,10 @@ def main(source='deamon'):
                         
                         if not lesson_repeat:
                             del lessons_list[lessons_list.index(les)]
-                                
+                            
                             saveJson(files_folder+'lessons.json', lessons_list)
                             appendLog(f'Lesson named {lesson_name} removed')
-                                
+                            
                             if getConfig("debug"):
                                 print(f'{nowtime()} Конференция {CYAN}{lesson_name}{RESET} в {BRED}{lesson_time}{RESET} удалена.')
                         
@@ -604,7 +604,7 @@ def main(source='deamon'):
                     print(f'{nowtime()} Ожидание конференции сброшено.')
                 else:
                     print('')
-                    
+                
                 time.sleep(1)
                 pass
 
@@ -656,6 +656,7 @@ def main(source='deamon'):
             rpc.disconnect()
             clear()
             sys.exit()
+            
         elif source == 'menu':
             appendLog(f'Waiting for any input')
             
@@ -665,6 +666,7 @@ def main(source='deamon'):
             clear()
             setTitle("AutoZoom (Главная)", sysname)
             return
+        
     except KeyboardInterrupt:
         if source == 'deamon':
             appendLog(f'Deamon stopped, waiting for any input')
@@ -674,6 +676,7 @@ def main(source='deamon'):
             rpc.disconnect()
             clear()
             sys.exit()
+            
         elif source == 'menu':
             appendLog(f'Deamon stopped, waiting for any input')
             

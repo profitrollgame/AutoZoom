@@ -35,6 +35,7 @@ default_config = {
             "end_mode": "shutdown",
             "obs_exe": None,
             "obs_core": None,
+            "obs_delay": 10,
             "update_check": True,
             "write_logs": True,
             "log_size": 512
@@ -72,11 +73,14 @@ else:
 
 
 # Импортирование игралки звуков
-if getOS() == "windows":
-    import winsound
-    from playsound import playsound
-elif getOS() == "unix":
-    from playsound import playsound
+try:
+    if getOS() == "windows":
+        import winsound
+        from playsound import playsound
+    elif getOS() == "unix":
+        from playsound import playsound
+except:
+    pass
 
 
 # Установка заголовка окна cmd.exe
@@ -352,10 +356,14 @@ def getConfig(some_var):
                         
                     except:
                         try:
-                            repairConfig(config_list)
-                            config_list = json.load(json_file)
-                            json_file.close()
-                            return config_list[some_var]
+                            try:
+                                setConfig(some_var, default_config[some_var])
+                                return default_config[some_var]
+                            except:
+                                repairConfig(config_list)
+                                config_list = json.load(json_file)
+                                json_file.close()
+                                return config_list[some_var]
                         except:
                             return default_config[some_var]
             except:

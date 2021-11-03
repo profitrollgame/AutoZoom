@@ -6,7 +6,7 @@ import sys
 from colors import *
 from functions import *
 
-version = '2.3'
+version = '2.4'
 
 import libinstaller
 from pypresence import Presence
@@ -71,6 +71,11 @@ def waitLesson(lesson, start):
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
+    except Exception as exp:
+        appendLog(f'Discord RPC failed to change status due to {exp}')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
+            time.sleep(1)
 
 def onLesson(lesson, start):
     try:
@@ -88,6 +93,11 @@ def onLesson(lesson, start):
         appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
+            time.sleep(1)
+    except Exception as exp:
+        appendLog(f'Discord RPC failed to change status due to {exp}')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
             time.sleep(1)
 
 def inMenu(): 
@@ -107,6 +117,11 @@ def inMenu():
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
+    except Exception as exp:
+        appendLog(f'Discord RPC failed to change status due to {exp}')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
+            time.sleep(1)
 
 def shutdown(end):
     try:
@@ -124,6 +139,11 @@ def shutdown(end):
         appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
+            time.sleep(1)
+    except Exception as exp:
+        appendLog(f'Discord RPC failed to change status due to {exp}')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
             time.sleep(1)
 
 def inSettings():
@@ -143,6 +163,11 @@ def inSettings():
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
+    except Exception as exp:
+        appendLog(f'Discord RPC failed to change status due to {exp}')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
+            time.sleep(1)
 
 def inDebug():
     try:
@@ -160,6 +185,11 @@ def inDebug():
         appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
+            time.sleep(1)
+    except Exception as exp:
+        appendLog(f'Discord RPC failed to change status due to {exp}')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
             time.sleep(1)
 
 def inEditor():
@@ -179,6 +209,11 @@ def inEditor():
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
+    except Exception as exp:
+        appendLog(f'Discord RPC failed to change status due to {exp}')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
+            time.sleep(1)
 
 def inUpdater():
     try:
@@ -196,6 +231,11 @@ def inUpdater():
         appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
+            time.sleep(1)
+    except Exception as exp:
+        appendLog(f'Discord RPC failed to change status due to {exp}')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
             time.sleep(1)
 
 def inHelp():
@@ -215,6 +255,11 @@ def inHelp():
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
+    except Exception as exp:
+        appendLog(f'Discord RPC failed to change status due to {exp}')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
+            time.sleep(1)
 
 def lessonEnded():
     try:
@@ -233,6 +278,11 @@ def lessonEnded():
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
             time.sleep(1)
+    except Exception as exp:
+        appendLog(f'Discord RPC failed to change status due to {exp}')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
+            time.sleep(1)
 
 
 if __name__ == "__main__":
@@ -244,4 +294,9 @@ if __name__ == "__main__":
         appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
+            time.sleep(1)
+    except Exception as exp:
+        appendLog(f'Discord RPC failed to change status due to {exp}')
+        if getConfig("debug"):
+            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
             time.sleep(1)

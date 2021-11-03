@@ -27,7 +27,7 @@ if getConfig("firstboot"):
                 
             else:
                 continue
-                
+        
     elif getOS() == "unix":
         while True:
             os.system('clear')
@@ -46,7 +46,7 @@ if getConfig("firstboot"):
                 
             else:
                 continue
-                
+        
     elif getOS() == "windows":
         setConfig("firstboot", False)
 
@@ -166,7 +166,7 @@ if len(libs) > 0:
         if response != 0:
             appendLog(f'Failed to install {each}')
             sys.exit(f"{RESET}[{BRED}ERR{RESET}] Установка {YELLOW}{each} {RESET}провалилась.")
-            
+        
     appendLog('Everything seems to be installed')
     print(f"{RESET}[{BGREEN}OK{RESET}] Все модули были успешно установлены.")
     

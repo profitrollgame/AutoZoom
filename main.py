@@ -9,6 +9,8 @@ import platform
 import subprocess
 from pathlib import Path
 
+import libinstaller
+
 from functions import *
 
 appendLog('main.py start initialized', startup=True)
@@ -28,15 +30,13 @@ else:
     BBLACK = BRED = BGREEN = BYELLOW = BBLUE = BMAGENTA = BCYAN = BWHITE = ''
     ULINE = REVERSE = ''
 
-import libinstaller
-
 import wget
 import requests
 import keyboard
 import getpass
 from zipfile import ZipFile
 
-version = 2.3
+version = 2.4
 path = Path(__file__).resolve().parent
 
 def mainMenu():

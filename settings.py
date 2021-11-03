@@ -115,14 +115,14 @@ def settings():
                 
                 clear()
                 continue
-
+                
             elif settings_choose == '2':
                 setConfig("use_colors", not getConfig("use_colors"))
                 appendLog(f'Changed option "use_colors" to {getConfig("use_colors")}')
                 
                 clear()
                 continue
-
+                
             elif settings_choose == '3':
                 if sysname == 'windows':
                     setConfig("run_fullscreen", not getConfig("run_fullscreen"))
@@ -130,7 +130,7 @@ def settings():
                 
                 clear()
                 continue
-
+                
             elif settings_choose == '4':
                 setConfig("sounds", not getConfig("sounds"))
                 appendLog(f'Changed option "sounds" to {getConfig("sounds")}')
@@ -179,20 +179,20 @@ def settings():
                                     none = input('Вы не выбрали верный путь для OBS.\n\n > ')
                                     clear()
                                     break
-                                        
+                        
                         appendLog(f'Changed option "obs_exe" to {getConfig("obs_exe")}')
                         appendLog(f'Changed option "obs_core" to {getConfig("obs_core")}')
                 
                 clear()
                 continue
-
+                
             elif settings_choose == '6':
                 setConfig("shutdown_enabled", not getConfig("shutdown_enabled"))
                 appendLog(f'Changed option "shutdown_enabled" to {getConfig("shutdown_enabled")}')
                 
                 clear()
                 continue
-
+                
             elif settings_choose == '7':
                 clear()
                 settings2()
@@ -202,7 +202,7 @@ def settings():
                 clear()
                 setTitle("AutoZoom (Главная)", sysname)
                 return
-                
+        
     except KeyboardInterrupt:
         rpc.inMenu()
         clear()
@@ -218,7 +218,7 @@ def settings2():
             
             setTitle("AutoZoom (Настройки)", sysname)
             clear()
-                
+            
             if getConfig("use_colors"):
                 color_val = f'{BGREEN}Вкл.{RESET}'
             elif not getConfig("use_colors"):
@@ -235,21 +235,21 @@ def settings2():
                     tg_var = f'{BRED}Не настроен{RESET}'
             else:
                 tg_var = f'{BRED}Не настроен{RESET}'
-                
+            
             if getConfig("telegram_enabled"):
                 telegram_en_val = f'{BGREEN}Вкл.{RESET}'
             elif not getConfig("telegram_enabled"):
                 telegram_en_val = f'{BRED}Выкл.{RESET}'
             else:
                 telegram_en_val = f'{BRED}ERROR{RESET}'
-                
+            
             if getConfig("update_check"):
                 update_val = f'{BGREEN}Вкл.{RESET}'
             elif not getConfig("update_check"):
                 update_val = f'{BRED}Выкл.{RESET}'
             else:
                 update_val = f'{BRED}ERROR{RESET}'
-             
+            
             shutdown_time_val = getConfig("shutdown_timeout")
             start_val = getConfig("start")
             stop_val = getConfig("stop")
@@ -432,16 +432,19 @@ def settings3():
             print(f'  {BRED}2.{RESET} Размер лога действий ({YELLOW}{str(getConfig("log_size"))} Кб{RESET})')
             print(f'     {BBLACK}Размер файла лога превышая который он будет упакован в архив\n')
 
-            print(f'  {BRED}3.{RESET} Добавить в автозапуск')
+            print(f'  {BRED}3.{RESET} Задержка до записи OBS ({YELLOW}{str(getConfig("obs_delay"))} сек.{RESET})')
+            print(f'     {BBLACK}Через сколько секунд будет отправлен сигнал записи экрана\n')
+
+            print(f'  {BRED}4.{RESET} Добавить в автозапуск')
             print(f'     {BBLACK}{winOnly(BRED, BBLACK, sysname, end=" ")}Автоматически запускать демона при входе в систему\n')
             
-            print(f'  {BRED}4.{RESET} Удалять старые конференции ({remove_val})')
+            print(f'  {BRED}5.{RESET} Удалять старые конференции ({remove_val})')
             print(f'     {BBLACK}Автоматически удалять одноразовые конференции которые были до дня запуска\n')
 
-            print(f'  {BRED}5.{RESET} Сбросить все настройки')
+            print(f'  {BRED}6.{RESET} Сбросить все настройки')
             print(f'     {BBLACK}Восстановить настройки по умолчанию\n')
 
-            print(f'  {BRED}6.{RESET} Назад')
+            print(f'  {BRED}7.{RESET} Назад')
             print(f'     {BBLACK}Вернуться на предыдущую страницу{RESET}\n')
 
             print(f' {BBLACK}Для переключения параметров Вкл/Выкл просто введите номер{RESET}') #\n Если окно приложения слишком мелкое - увеличьте его или листайте это меню{RESET}')
@@ -468,6 +471,22 @@ def settings3():
                 continue
 
             if settings_choose == '3':
+                
+                try:
+                    clear()
+                    log_size_value = int(input(f'{RESET}Введите через сколько секунд отправлять сигнал записи:\n\n > {BRED}'))
+                    setConfig("obs_delay", log_size_value)
+                    continue
+                except:
+                    clear()
+                    print(f'{RESET}Нужно использовать целое число.')
+                    time.sleep(2)
+                    continue
+                    
+                appendLog(f'Changed option "obs_delay" to {getConfig["obs_delay"]}')
+                continue
+
+            if settings_choose == '4':
             
                 if sysname == "windows":
                 
@@ -503,11 +522,11 @@ def settings3():
                 else:
                     continue
                     
-            elif settings_choose == '4':
+            elif settings_choose == '5':
                 setConfig("remove_old", not getConfig("remove_old"))
                 appendLog(f'Changed option "remove_old" to {getConfig("remove_old")}')
 
-            elif settings_choose == '5':
+            elif settings_choose == '6':
                 appendLog('Resetting configuration')
             
                 while True:
@@ -541,7 +560,7 @@ def settings3():
                 clear()
                 continue
 
-            elif settings_choose == '6':
+            elif settings_choose == '7':
                 appendLog('Returned to settings page 2')
                 clear()
                 return
