@@ -36,7 +36,7 @@ import keyboard
 import getpass
 from zipfile import ZipFile
 
-version = 2.4
+version = 2.5
 path = Path(__file__).resolve().parent
 
 def mainMenu():

@@ -6,7 +6,7 @@ import sys
 from colors import *
 from functions import *
 
-version = '2.4'
+version = '2.5'
 
 import libinstaller
 from pypresence import Presence
@@ -16,6 +16,22 @@ client_id = '800049969960058882'
 RPC = Presence(client_id,pipe=0)
 
 connected = False
+
+rpc_dict = {
+    "large_image": "1024_cover",
+    "small_image": {
+        "waiting": "status_waiting",
+        "conference": "status_lesson",
+        "menu": "status_menu",
+        "shutdown": "status_shutdown",
+        "settings": "status_settings",
+        "debug": "status_debug",
+        "editor": "status_editing",
+        "updating": "status_updating",
+        "support": "status_support"
+    },
+    "large_text": "AutoZoom • v%version%\nhttp://bit.ly/auto_zoom"
+}
 
 if getConfig("use_rpc") and getOS != "android":
     try:
@@ -53,14 +69,22 @@ def reset():
         appendLog('Discord RPC status cleared')
 
 
-
-def waitLesson(lesson, start):
+def changePresence(sml_img, sml_txt, stt, dtls, start=None, end=None):
     try:
         if getConfig("use_rpc") and getOS != "android":
             if connected == False:
                 connect()
-            RPC.update(large_image='1024_cover', small_image='status_waiting', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Ожидание', state=f'Ждём начала «{lesson}»', details='Конференция не началась', start=start)
-        appendLog(f'Discord RPC changed to waitLesson (Lesson: {lesson}, Start: {start})')
+            RPC.update(
+                large_image=rpc_dict["large_image"],
+                small_image=rpc_dict["small_image"][sml_img],
+                large_text=rpc_dict["large_text"].replace("%version%", str(version)),
+                small_text=sml_txt,
+                state=stt,
+                details=dtls,
+                start=start,
+                end=end
+            )
+        appendLog(f'Discord RPC changed: (Small image: {sml_img}, Small text: {sml_txt}, State: {stt}, Details: {dtls}, Start: {str(start)}, End: {str(end)})')
     except AttributeError:
         appendLog('Discord RPC failed to change status')
         if getConfig("debug"):
@@ -77,226 +101,37 @@ def waitLesson(lesson, start):
             print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
             time.sleep(1)
 
-def onLesson(lesson, start):
-    try:
-        if getConfig("use_rpc") and getOS != "android":
-            if connected == False:
-                connect()
-            RPC.update(large_image='1024_cover', small_image='status_lesson', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Конференция', state=f'Слушаем «{lesson}»', details='Идёт конференция', start=start)
-        appendLog(f'Discord RPC changed to onLesson (Lesson: {lesson}, Start: {start})')
-    except AttributeError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except AssertionError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except Exception as exp:
-        appendLog(f'Discord RPC failed to change status due to {exp}')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
-            time.sleep(1)
+
+def waitLesson(conference, start):
+    changePresence("waiting", "Ожидание", f"Ждём начала «{conference}»", "Конференция не началась", start=start)
+
+def onLesson(conference, start):
+    changePresence("conference", "Конференция", f"Слушаем «{conference}»", "Идёт конференция", start=start)
 
 def inMenu(): 
-    try:
-        if getConfig("use_rpc") and getOS != "android":
-            if connected == False:
-                connect()
-            RPC.update(large_image='1024_cover', small_image='status_menu', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Главное меню', state='Открыт список опций', details='В главном меню')
-        appendLog('Discord RPC changed to inMenu')
-    except AttributeError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except AssertionError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except Exception as exp:
-        appendLog(f'Discord RPC failed to change status due to {exp}')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
-            time.sleep(1)
+    changePresence("menu", "Главное меню", "Открыт список опций", "В главном меню")
 
 def shutdown(end):
-    try:
-        if getConfig("use_rpc") and getOS != "android":
-            if connected == False:
-                connect()
-            RPC.update(large_image='1024_cover', small_image='status_shutdown', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Выключение', state='Отсчёт до авто-выключения', details='Выключение ПК', end=end)
-        appendLog(f'Discord RPC changed to shutdown (End: {end})')
-    except AttributeError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except AssertionError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except Exception as exp:
-        appendLog(f'Discord RPC failed to change status due to {exp}')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
-            time.sleep(1)
+    changePresence("shutdown", "Выключение", "Отсчёт до авто-выключения", "Выключение ПК", end=end)
 
 def inSettings():
-    try:
-        if getConfig("use_rpc") and getOS != "android":
-            if connected == False:
-                connect()
-            RPC.update(large_image='1024_cover', small_image='status_settings', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Настройки', state='Открыты настройки', details='В главном меню')
-        appendLog('Discord RPC changed to inSettings')
-    except AttributeError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except AssertionError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except Exception as exp:
-        appendLog(f'Discord RPC failed to change status due to {exp}')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
-            time.sleep(1)
+    changePresence("settings", "Настройки", "Открыты настройки", "В главном меню")
 
 def inDebug():
-    try:
-        if getConfig("use_rpc") and getOS != "android":
-            if connected == False:
-                connect()
-            RPC.update(large_image='1024_cover', small_image='status_debug', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Отладка', state='Открыто меню отладки', details='В меню разработчика')
-        appendLog('Discord RPC changed to inDebug')
-    except AttributeError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except AssertionError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except Exception as exp:
-        appendLog(f'Discord RPC failed to change status due to {exp}')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
-            time.sleep(1)
+    changePresence("debug", "Отладка", "Открыто меню отладки", "В меню разработчика")
 
 def inEditor():
-    try:
-        if getConfig("use_rpc") and getOS != "android":
-            if connected == False:
-                connect()
-            RPC.update(large_image='1024_cover', small_image='status_editing', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Редактор', state='Открыт редактор', details='В главном меню')
-        appendLog('Discord RPC changed to inEditor')
-    except AttributeError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except AssertionError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except Exception as exp:
-        appendLog(f'Discord RPC failed to change status due to {exp}')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
-            time.sleep(1)
+    changePresence("editor", "Редактор", "Открыт редактор", "В главном меню")
 
 def inUpdater():
-    try:
-        if getConfig("use_rpc") and getOS != "android":
-            if connected == False:
-                connect()
-            RPC.update(large_image='1024_cover', small_image='status_updating', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Обновление', state='Открыт центр обновлений', details='В главном меню')
-        appendLog('Discord RPC changed to inUpdater')
-    except AttributeError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except AssertionError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except Exception as exp:
-        appendLog(f'Discord RPC failed to change status due to {exp}')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
-            time.sleep(1)
+    changePresence("updating", "Обновление", "Открыт центр обновлений", "В главном меню")
 
 def inHelp():
-    try:
-        if getConfig("use_rpc") and getOS != "android":
-            if connected == False:
-                connect()
-            RPC.update(large_image='1024_cover', small_image='status_support', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Помощь', state='Открыта помощь', details='В главном меню')
-        appendLog('Discord RPC changed to inHelp')
-    except AttributeError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except AssertionError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except Exception as exp:
-        appendLog(f'Discord RPC failed to change status due to {exp}')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
-            time.sleep(1)
+    changePresence("support", "Помощь", "Открыта помощь", "В главном меню")
 
 def lessonEnded():
-    try:
-        if getConfig("use_rpc") and getOS != "android":
-            if connected == False:
-                connect()
-            RPC.update(large_image='1024_cover', small_image='status_waiting', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Ожидание', state=f'Ждём указаний', details='Все конференции закончились')
-        appendLog('Discord RPC changed to lessonEnded')
-    except AttributeError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except AssertionError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except Exception as exp:
-        appendLog(f'Discord RPC failed to change status due to {exp}')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
-            time.sleep(1)
+    changePresence("waiting", "Ожидание", "Ждём указаний", "Все конференции закончились")
 
 
 if __name__ == "__main__":
-    try:
-        RPC.connect()
-        RPC.update(large_image='1024_cover', small_image='status_settings', large_text=f'AutoZoom • v{str(version)}\nhttp://bit.ly/auto_zoom', small_text='Отладка', state='Модуль Discord RPC запущен в режиме тестирования', details='Режим отладки')
-        appendLog('Discord RPC changed to debug')
-    except AttributeError:
-        appendLog('Discord RPC failed to change status')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.')
-            time.sleep(1)
-    except Exception as exp:
-        appendLog(f'Discord RPC failed to change status due to {exp}')
-        if getConfig("debug"):
-            print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
-            time.sleep(1)
+    changePresence("settings", "Отладка", "Модуль Discord RPC запущен в режиме тестирования", "Режим отладки")
