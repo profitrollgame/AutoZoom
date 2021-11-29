@@ -7,3 +7,6 @@
   * [Linux](installation/linux.md)
   * [Android](installation/android.md)
 * [🎬 Запись конференций](recording.md)
+* [✉ Telegram бот](telegram-bot.md)
+* [🖥 Использование](usage.md)
+* [☑ Заключение](finish.md)
