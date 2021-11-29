@@ -1,6 +1,9 @@
 # Table of contents
 
 * [Добро пожаловать!](README.md)
-* [Информация и описание](informaciya-i-opisanie.md)
-* [Инструкция по установке](instrukciya-po-ustanovke.md)
-* [Запись конференций](zapis-konferencii.md)
+* [📃 Информация и описание](description.md)
+* [🛠 Инструкция по установке](installation/README.md)
+  * [Windows](installation/windows.md)
+  * [Linux](installation/linux.md)
+  * [Android](installation/android.md)
+* [🎬 Запись конференций](recording.md)
