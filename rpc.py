@@ -13,7 +13,13 @@ from pypresence import Presence
 
 client_id = '800049969960058882'
 
-RPC = Presence(client_id,pipe=0)
+try:
+    RPC = Presence(client_id,pipe=0)
+except Exception as exp:
+    appendLog(f'Discord RPC failed to initialize status due to {exp}')
+    if getConfig("debug"):
+        print(f'{RESET}Модуль {BRED}Discord RPC {RESET}не смог подключиться.\nВозможно, ваш {CYAN}Discord {RESET}не открыт.\nОшибка: {BRED}{exp}{RESET}')
+        time.sleep(1)
 
 connected = False
 
