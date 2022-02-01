@@ -6,7 +6,7 @@ import sys
 from colors import *
 from functions import *
 
-version = '2.5'
+version = '2.6'
 
 import libinstaller
 from pypresence import Presence
