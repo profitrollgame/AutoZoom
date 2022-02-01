@@ -20,26 +20,33 @@ yes_list = ['y', 'yes', 'д', 'да']
 no_list = ['n', 'no', 'н', 'нет']
 
 default_config = {
-            "firstboot": True,
-            "debug": False,
-            "shutdown_timeout": 30,
-            "shutdown_enabled": False,
-            "start": "shift+f7",
-            "stop": "shift+f8",
-            "telegram_enabled": False,
-            "use_colors": True,
-            "run_fullscreen": False,
-            "use_rpc": True,
-            "sounds": True,
-            "remove_old": True,
-            "end_mode": "shutdown",
-            "obs_exe": None,
-            "obs_core": None,
-            "obs_delay": 10,
-            "update_check": True,
-            "write_logs": True,
-            "log_size": 512
-    }
+    "firstboot": True,
+    "debug": False,
+    "shutdown_timeout": 30,
+    "shutdown_enabled": False,
+    "start": "shift+f7",
+    "stop": "shift+f8",
+    "telegram_enabled": False,
+    "use_colors": True,
+    "run_fullscreen": False,
+    "rpc_use": True,
+    "rpc_id": "800049969960058882",
+    "sounds": True,
+    "remove_old": True,
+    "end_mode": "shutdown",
+    "obs_exe": None,
+    "obs_core": None,
+    "obs_delay": 10,
+    "update_check": True,
+    "write_logs": True,
+    "log_size": 512,
+    "sound_ended": "ended",
+    "sound_recordstart": "recordstart",
+    "sound_recordstop": "recordstop",
+    "sound_shutdown": "shutdown",
+    "sound_started": "started",
+    "sound_warning": "warning"
+}
 
 
 # Функция возвращающая надпись Windows Only

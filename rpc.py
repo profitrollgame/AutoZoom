@@ -11,7 +11,7 @@ version = '2.6'
 import libinstaller
 from pypresence import Presence
 
-client_id = '800049969960058882'
+client_id = getConfig("rpc_id")
 
 try:
     RPC = Presence(client_id,pipe=0)
@@ -39,7 +39,7 @@ rpc_dict = {
     "large_text": "AutoZoom • v%version%\nhttp://bit.ly/auto_zoom"
 }
 
-if getConfig("use_rpc") and getOS != "android":
+if getConfig("rpc_use") and getOS != "android":
     try:
         RPC.connect()
         connected = True
@@ -51,7 +51,7 @@ else:
 def disconnect():
     global connected
     
-    if getConfig("use_rpc") and getOS != "android":
+    if getConfig("rpc_use") and getOS != "android":
         try:
             RPC.close()
             connected = False
@@ -70,14 +70,14 @@ def connect():
         appendLog('Discord RPC failed to connect')
 
 def reset():
-    if getConfig("use_rpc") and getOS != "android":
+    if getConfig("rpc_use") and getOS != "android":
         RPC.clear()
         appendLog('Discord RPC status cleared')
 
 
 def changePresence(sml_img, sml_txt, stt, dtls, start=None, end=None):
     try:
-        if getConfig("use_rpc") and getOS != "android":
+        if getConfig("rpc_use") and getOS != "android":
             if connected == False:
                 connect()
             RPC.update(
@@ -119,6 +119,9 @@ def inMenu():
 
 def shutdown(end):
     changePresence("shutdown", "Выключение", "Отсчёт до авто-выключения", "Выключение ПК", end=end)
+
+def sleepmode(end):
+    changePresence("shutdown", "Спящий режим", "Отсчёт до авто-засыпания", "Спящий режим ПК", end=end)
 
 def inSettings():
     changePresence("settings", "Настройки", "Открыты настройки", "В главном меню")

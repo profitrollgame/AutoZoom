@@ -122,7 +122,7 @@ def tgsend(enabled, message):
                     
                 except Exception as excep:
                     appendLog(f'Failed to send TG message "{message}": {exp}')
-                    playSound("warning", nowtime())
+                    playSound(getConfig("sound_warning"), nowtime())
                     print(f'{nowtime()} Не удалось отправить Telegram сообщение "{message}" (Ошибка: {exp})')
 
 
@@ -380,17 +380,17 @@ def main(source='deamon'):
                             
                             if getConfig("debug"):
                                 if retries == 2:
-                                    playSound("warning", nowtime())
+                                    playSound(getConfig("sound_warning"), nowtime())
                                     tgsend(getConfig("telegram_enabled"), f"⚠ Задержка конференции *{lesson_name}* обнаружена {profilename}")
                             
                             if retries == 36:
-                                playSound("warning", nowtime())
+                                playSound(getConfig("sound_warning"), nowtime())
                                 tgsend(getConfig("telegram_enabled"), f"⚠ Задержка конференции *{lesson_name}* превысила 3 минуты {profilename}")
                                 print(f'{nowtime()} Задержка конференции {CYAN}{lesson_name}{RESET} превысила {BRED}3{RESET} минуты')
                                 appendLog(f'Lesson delay exceeded: {retries} retries')
                             
                             if retries == 120:
-                                playSound("warning", nowtime())
+                                playSound(getConfig("sound_warning"), nowtime())
                                 tgsend(getConfig("telegram_enabled"), f"⚠ Задержка конференции *{lesson_name}* превысила 10 минут {profilename}")
                                 print(f'{nowtime()} Задержка конференции {CYAN}{lesson_name}{RESET} превысила {BRED}10{RESET} минут')
                                 appendLog(f'Lesson delay exceeded: {retries} retries')
@@ -398,17 +398,17 @@ def main(source='deamon'):
                             if retries == 360:
                             
                                 if getConfig("debug"):
-                                    playSound("warning", nowtime())
+                                    playSound(getConfig("sound_warning"), nowtime())
                                     tgsend(getConfig("telegram_enabled"), f"⚠ Задержка конференции *{lesson_name}* превысила 30 минут, конференция сбошена {profilename}")
                                     print(f'{nowtime()} Задержка конференции {CYAN}{lesson_name}{RESET} превысила {BRED}30{RESET} минут, конференция сброшена')
                                 else:
-                                    playSound("warning", nowtime())
+                                    playSound(getConfig("sound_warning"), nowtime())
                                     tgsend(getConfig("telegram_enabled"), f"⚠ Задержка конференции *{lesson_name}* превысила 30 минут, конференция сбошена {profilename}")
                                     print(f'{nowtime()} Задержка конференции {CYAN}{lesson_name}{RESET} превысила {BRED}30{RESET} минут, конференция сброшена')
                                 
                                 appendLog(f'Lesson delay exceeded: {retries} retries')
                                 
-                                playSound("ended", nowtime())
+                                playSound(getConfig("sound_ended"), nowtime())
                                 
                                 if lesson_obs:
                                 
@@ -475,7 +475,7 @@ def main(source='deamon'):
                                         
                                         setTitle(f'Идёт конференция "{lesson_name}"', sysname)
                                         
-                                        playSound("started", nowtime())
+                                        playSound(getConfig("sound_started"), nowtime())
                                         tgsend(getConfig("telegram_enabled"), f"▶ Зашёл на конференцию *{lesson_name}* в *{nowtime(False, False, False)}* {profilename}")
                                         
                                         appendLog(f'Joined lesson {lesson_name} at {nowtime(False, False, False)}')
@@ -503,7 +503,7 @@ def main(source='deamon'):
                                             keyboard.release(start)
                                             record_now = True
                                             print(f'{nowtime()} Сигнал записи OBS отправлен.')
-                                            playSound("recordstart", nowtime())
+                                            playSound(getConfig("sound_recordstart"), nowtime())
                                     
                                     lesson_duration = (datetime.now() - lesson_start).total_seconds()
                                     
@@ -538,14 +538,14 @@ def main(source='deamon'):
                             
                             appendLog(f'Lesson {lesson_name} duration was {str(int(lesson_duration/60))} m. ({str(lesson_duration)} s.)')
                             
-                            playSound("ended", nowtime())
+                            playSound(getConfig("sound_ended"), nowtime())
                             
                             if lesson_obs:
                                 keyboard.press(stop)
                                 time.sleep(.25)
                                 keyboard.release(stop)
                                 print(f'{nowtime()} Сигнал остановки записи через OBS отправлен.') 
-                                playSound("recordstop", nowtime())
+                                playSound(getConfig("sound_recordstop"), nowtime())
                                 record_now = False
                                 time.sleep(3)
                                 
@@ -579,7 +579,7 @@ def main(source='deamon'):
                         lessons_list = getLessons()
                         
                     else:
-                        playSound("started", nowtime())
+                        playSound(getConfig("sound_started"), nowtime())
                         tgsend(getConfig("telegram_enabled"), f"▶ Присоединился к конференции *{lesson_name}* в *{nowtime(False, False, False)}* {profilename}")
                         
                         appendLog(f'Joined lesson {lesson_name} at {nowtime(False, False, False)}')
@@ -622,7 +622,7 @@ def main(source='deamon'):
                         
                         appendLog(f'Shutting PC down in {str(getConfig("shutdown_timeout"))}')
                         
-                        playSound("shutdown", nowtime())
+                        playSound(getConfig("sound_shutdown"), nowtime())
                         end_unix = int(time.time())+getConfig("shutdown_timeout")*60
                         rpc.shutdown(end_unix)
                         shutdown = inputimeout(prompt=f'{nowtime()} Нажмите {CYAN}Enter{RESET} чтобы предотвратить выключение ПК...', timeout=getConfig("shutdown_timeout")*60)
@@ -637,6 +637,28 @@ def main(source='deamon'):
                         time.sleep(5)
                         appendLog('Shutting PC down')
                         os.system("shutdown /s /t 1")
+                elif getConfig("end_mode") == 'sleep':
+                    try:
+                        tgsend(getConfig("telegram_enabled"), f"⚠ Конференции кончились, отправление в сон {profilename}через {str(getConfig('shutdown_timeout'))} мин...")
+                        print(f'{nowtime()} Ваш ПК автоматически заснёт через {BRED}{str(getConfig("shutdown_timeout"))} мин{RESET}.')
+                        
+                        appendLog(f'Falling asleep in {str(getConfig("shutdown_timeout"))}')
+                        
+                        playSound(getConfig("sound_shutdown"), nowtime())
+                        end_unix = int(time.time())+getConfig("shutdown_timeout")*60
+                        rpc.sleepmode(end_unix)
+                        shutdown = inputimeout(prompt=f'{nowtime()} Нажмите {CYAN}Enter{RESET} чтобы предотвратить засыпание ПК...', timeout=getConfig("shutdown_timeout")*60)
+                        
+                        appendLog('Sleep mode aborted')
+                        clear()
+                    except TimeoutOccurred:
+                        clear()
+                        print(f'{nowtime()} Время вышло, уводим ваш ПК в спящий режим...')
+                        time.sleep(3)
+                        tgsend(getConfig("telegram_enabled"), f"⚠ Время таймаута исткело, переводим ПК в спящий режим...")
+                        time.sleep(5)
+                        appendLog('Activating PC sleep mode')
+                        os.system("rundll32.exe powrprof.dll, SetSuspendState Sleep")
                 # elif getConfig("end_mode") == 'restart':
                     # from datetime import datetime, time
                     # from time import sleep

@@ -237,7 +237,7 @@ def helpMenu():
             elif help_choose == '7':
                 try:
                     clear()
-                    print(f'{BBLACK}»{RESET} Список поддержавших проект:\n\n{(requests.get("https://www.end-play.xyz/AutoZoomDonors.txt").text).replace("-", RESET+" •"+BRED)}{RESET}')
+                    print(f'{BBLACK}»{RESET} Список поддержавших проект:\n\n{(requests.get("https://www.end-play.xyz/AutoZoomDonors.txt").content.decode("utf-8")).replace("-", RESET+" •"+BRED)}{RESET}')
                 except Exception as exp:
                     clear()
                     appendLog(f'Failed to load donation list {exp}')
@@ -462,7 +462,7 @@ def updater(serv_ver, version):
                     appendLog('Changelog loaded')
                     clear()
                     print(f'{RESET}{changelog_text}\n')
-                    print(changelog.text)
+                    print(changelog.content.decode('utf-8'))
                     print(changelog_footer)
                     none = input('\n > ')
                     continue

@@ -298,9 +298,9 @@ def settings2():
                     print(f'{RESET}Нужно использовать целое число.')
                     time.sleep(2)
                     continue
-                    
+                
                 continue
-
+            
             elif settings_choose == '2':
                 
                 if sysname == 'windows':
@@ -317,10 +317,10 @@ def settings2():
                         print(f'{RESET}Нужно использовать комбинацию клавиш в виде текста.')
                         time.sleep(2)
                         continue
-                    
+                
                 clear()
                 continue
-
+            
             elif settings_choose == '3':
                 
                 if sysname == 'windows':
@@ -337,18 +337,18 @@ def settings2():
                         print(f'{RESET}Нужно использовать комбинацию клавиш в виде текста.')
                         time.sleep(2)
                         continue
-                        
+                
                 clear()
                 continue
-
+            
             elif settings_choose == '4':
-                    
+                
                 setConfig("telegram_enabled", not getConfig("telegram_enabled"))
                 appendLog(f'Changed option "telegram_enabled" to {getConfig("telegram_enabled")}')
                 
                 clear()
                 continue
-
+            
             elif settings_choose == '5':
             
                 clear()
@@ -367,30 +367,30 @@ def settings2():
                     except:
                         clear()
                         continue
-                        
+                    
                     telegram_send.send(messages=[f"🎊 Конфигурация правильна, всё работает!"], parse_mode="markdown", conf=f"{files_folder}telegram.conf")
                     appendLog('Telegram Send successfully configured')
                     clear()
                     
                 continue
-
+            
             elif settings_choose == '6':
                 setConfig("update_check", not getConfig("update_check"))
                 appendLog(f'Changed option "update_check" to {getConfig("update_check")}')
                 
                 clear()
                 continue
-
+            
             elif settings_choose == '7':
                 appendLog('Going to settings page 3')
                 clear()
                 settings3()
-
+            
             elif settings_choose == '8':
                 appendLog('Returned to settings page 1')
                 clear()
                 return
-                
+            
     except KeyboardInterrupt:
         rpc.inMenu()
         clear()
@@ -405,21 +405,21 @@ def settings3():
             
             setTitle("AutoZoom (Настройки)", sysname)
             clear()
-                
+            
             if getConfig("write_logs"):
                 logs_val = f'{BGREEN}Вкл.{RESET}'
             elif not getConfig("write_logs"):
                 logs_val = f'{BRED}Выкл.{RESET}'
             else:
                 logs_val = f'{BRED}ERROR{RESET}'
-                
+            
             if getConfig("remove_old"):
                 remove_val = f'{BGREEN}Вкл.{RESET}'
             elif not getConfig("remove_old"):
                 remove_val = f'{BRED}Выкл.{RESET}'
             else:
                 remove_val = f'{BRED}ERROR{RESET}'
-             
+            
             shutdown_time_val = getConfig("shutdown_timeout")
             start_val = getConfig("start")
             stop_val = getConfig("stop")
@@ -440,11 +440,14 @@ def settings3():
             
             print(f'  {BRED}5.{RESET} Удалять старые конференции ({remove_val})')
             print(f'     {BBLACK}Автоматически удалять одноразовые конференции которые были до дня запуска\n')
+            
+            print(f'  {BRED}6.{RESET} Кастомизация звуков и RPC')
+            print(f'     {BBLACK}Изменить звуковые файлы и APPLICATION ID используемого Discord RPC\n')
 
-            print(f'  {BRED}6.{RESET} Сбросить все настройки')
+            print(f'  {BRED}7.{RESET} Сбросить все настройки')
             print(f'     {BBLACK}Восстановить настройки по умолчанию\n')
 
-            print(f'  {BRED}7.{RESET} Назад')
+            print(f'  {BRED}8.{RESET} Назад')
             print(f'     {BBLACK}Вернуться на предыдущую страницу{RESET}\n')
 
             print(f' {BBLACK}Для переключения параметров Вкл/Выкл просто введите номер{RESET}') #\n Если окно приложения слишком мелкое - увеличьте его или листайте это меню{RESET}')
@@ -466,7 +469,7 @@ def settings3():
                     print(f'{RESET}Нужно использовать целое число.')
                     time.sleep(2)
                     continue
-                    
+                
                 appendLog(f'Changed option "log_size" to {getConfig["log_size"]}')
                 continue
 
@@ -482,7 +485,7 @@ def settings3():
                     print(f'{RESET}Нужно использовать целое число.')
                     time.sleep(2)
                     continue
-                    
+                
                 appendLog(f'Changed option "obs_delay" to {getConfig["obs_delay"]}')
                 continue
 
@@ -516,17 +519,22 @@ def settings3():
                         none = input(f'Не удалось добавить в автозапуск:\n{BRED}{exp}{RESET}\n\n > ')
                         appendLog(f'Could not add autorun: {exp}')
                         continue
-                        
+                    
                     continue
                     
                 else:
                     continue
-                    
+            
             elif settings_choose == '5':
                 setConfig("remove_old", not getConfig("remove_old"))
                 appendLog(f'Changed option "remove_old" to {getConfig("remove_old")}')
-
+            
             elif settings_choose == '6':
+                appendLog('Going to customize page')
+                clear()
+                customize()
+
+            elif settings_choose == '7':
                 appendLog('Resetting configuration')
             
                 while True:
@@ -554,17 +562,17 @@ def settings3():
                     else:
                         clear()
                         continue
-                        
+                    
                     continue
                     
                 clear()
                 continue
 
-            elif settings_choose == '7':
+            elif settings_choose == '8':
                 appendLog('Returned to settings page 2')
                 clear()
                 return
-                
+     
     except KeyboardInterrupt:
         rpc.inMenu()
         clear()
