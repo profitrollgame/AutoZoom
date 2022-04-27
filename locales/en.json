@@ -1,0 +1,74 @@
+{
+    "answer_yes": ["y", "yes", "yep"],
+    "answer_no": ["n", "no", "nope"],
+    "functions": {
+        "compatability": "For Windows only!",
+        "winsound_error": "{0} Could not play winsound sound \"{1}\" (Error: {2})",
+        "playsound_error": "{0} Could not play playsound sound \"{1}\" (Error: {2})"
+    },
+    "rpc": {
+        "connection_error": "Module {0}Discord RPC {1}could not connect.\nYour {2}Discord {3}client might be closed.",
+        "connection_error_detailed": "Module {0}Discord RPC {1}could not connect.\nYour {2}Discord {3}client might be closed.\nError: {4}{5}",
+        "presence": {
+            "waiting": {
+                "smalltext": "Waiting",
+                "state": "Awaiting meeting «{0}»",
+                "details": "Meeting hasn't started"
+            },
+            "meeting": {
+                "smalltext": "Meeting",
+                "state": "Listening to «{0}»",
+                "details": "Ongoing meeting"
+            },
+            "menu": {
+                "smalltext": "Main menu",
+                "state": "Options list opened",
+                "details": "In the menus"
+            },
+            "shutdown": {
+                "smalltext": "Shutting down",
+                "state": "Countdown before auto-shutdown",
+                "details": "PC shutdown"
+            },
+            "sleep": {
+                "smalltext": "Sleeping mode",
+                "state": "Countdown before auto-sleep",
+                "details": "PC sleep mode"
+            },
+            "settings": {
+                "smalltext": "Settings",
+                "state": "Settings opened",
+                "details": "In the menus"
+            },
+            "debugmenu": {
+                "smalltext": "Debug",
+                "state": "Debug menu opened",
+                "details": "In the dev menu"
+            },
+            "editor": {
+                "smalltext": "Editor",
+                "state": "Meetings editor opened",
+                "details": "In the menus"
+            },
+            "updating": {
+                "smalltext": "Updater",
+                "state": "Updates center opened",
+                "details": "In the menus"
+            },
+            "support": {
+                "smalltext": "Support",
+                "state": "Help menu opened",
+                "details": "In the menus"
+            },
+            "ended": {
+                "smalltext": "Waiting",
+                "state": "Awaiting instructions",
+                "details": "All metings are over"
+            },
+            "debug": {
+                "smalltext": "Debug",
+                "state": "Discord RPC module is running in testing mode",
+                "details": "Debug mode"}
+        }
+    }
+}

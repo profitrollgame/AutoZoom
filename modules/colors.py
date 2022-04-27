@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
 
+# def col(color, type="util"):
+#     if type is "util":
+#         type="utility"
+#     elif type is "br":
+#         type="bright" 
+#     elif type is "def":
+#         type="default" 
+
 RESET = '\u001b[0m'
 
 BLACK = '\u001b[30m'

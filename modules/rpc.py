@@ -3,12 +3,11 @@
 import time
 import os
 import sys
-from colors import *
-from functions import *
+from modules.colors import *
+from modules.functions import *
 
-version = '2.6'
+version = '2.7'
 
-import libinstaller
 from pypresence import Presence
 
 client_id = getConfig("rpc_id")
@@ -27,7 +26,7 @@ rpc_dict = {
     "large_image": "1024_cover",
     "small_image": {
         "waiting": "status_waiting",
-        "conference": "status_lesson",
+        "meeting": "status_lesson",
         "menu": "status_menu",
         "shutdown": "status_shutdown",
         "settings": "status_settings",
@@ -108,11 +107,11 @@ def changePresence(sml_img, sml_txt, stt, dtls, start=None, end=None):
             time.sleep(1)
 
 
-def waitLesson(conference, start):
-    changePresence("waiting", "Ожидание", f"Ждём начала «{conference}»", "Конференция не началась", start=start)
+def waitLesson(meeting, start):
+    changePresence("waiting", "Ожидание", f"Ждём начала «{meeting}»", "Конференция не началась", start=start)
 
-def onLesson(conference, start):
-    changePresence("conference", "Конференция", f"Слушаем «{conference}»", "Идёт конференция", start=start)
+def onLesson(meeting, start):
+    changePresence("meeting", "Конференция", f"Слушаем «{meeting}»", "Идёт конференция", start=start)
 
 def inMenu(): 
     changePresence("menu", "Главное меню", "Открыт список опций", "В главном меню")

@@ -1,10 +1,10 @@
-import rpc
-from functions import *
+import modules.rpc as rpc
+from modules.functions import *
 from datetime import datetime, date, timedelta
 from daemon import getLessons, getConfig
 
 if getConfig("use_colors"):
-    from colors import *
+    from modules.colors import *
     appendLog('Colors imported')
 else:
     RESET = ''

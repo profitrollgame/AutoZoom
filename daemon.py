@@ -14,10 +14,10 @@ from random import randint
 from pathlib import Path
 from datetime import datetime, date, timedelta
 
-from functions import *
+from modules.functions import *
 
 if getConfig("use_colors"):
-    from colors import *
+    from modules.colors import *
     appendLog('Colors imported')
 else:
     RESET = ''
@@ -32,8 +32,7 @@ clear()
 setTitle("Загрузка daemon...", sysname)
 appendLog('daemon.py start initialized', startup=True)
 
-import libinstaller
-import rpc
+import modules.rpc as rpc
 
 if sysname == "windows":
     import easygui
@@ -109,7 +108,7 @@ def getLessons():
     return lessons_list
 
 
-def tgsend(enabled, message):
+def tgsend(enabled, message, video=None):
     if enabled:
         if os.path.exists(files_folder+'telegram.conf'):
             tg_file = open(files_folder+'telegram.conf', 'r', encoding="utf-8")
@@ -118,13 +117,24 @@ def tgsend(enabled, message):
             if tg_text != 'Not Configured':
             
                 try:
-                    telegram_send.send(messages=[f"{message}"], parse_mode="markdown", conf=files_folder+"telegram.conf")
+                    if video is not None:
+                        telegram_send.send(messages=[f"{message}"], videos=[f"{video}"], parse_mode="markdown", conf=files_folder+"telegram.conf")
+                    else:
+                        telegram_send.send(messages=[f"{message}"], parse_mode="markdown", conf=files_folder+"telegram.conf")
                     
                 except Exception as excep:
                     appendLog(f'Failed to send TG message "{message}": {exp}')
                     playSound(getConfig("sound_warning"), nowtime())
                     print(f'{nowtime()} Не удалось отправить Telegram сообщение "{message}" (Ошибка: {exp})')
 
+
+async def tgsendVideo(msg, video, video_new):
+    print(f"{nowtime()} Отправка записи конференции {CYAN}{msg}{RESET}.")
+    try:
+        tgsend(getConfig("telegram_enabled"), msg, video=video)
+        os.rename(video, video_new)
+    except Exception as exp:
+        tgsend(getConfig("telegram_enabled"), f"⚠ Отправка видео `{video}` прошла с ошибкой `{exp}`")
 
 def main(source='deamon'):
 
@@ -532,6 +542,7 @@ def main(source='deamon'):
                             if getConfig("debug"):
                                 tgsend(getConfig("telegram_enabled"), f"◀ Конференция *{lesson_name}* длилась *{str(round(lesson_duration/60, 2))}* мин.")
                                 print(f'{nowtime()} Конференция длилась {BGREEN}{str(lesson_duration)} сек{RESET}. ({BGREEN}{str(round(lesson_duration/60, 2))} мин{RESET}.)')
+                                fire_and_forget(tgsendVideo(f"{lesson_name}", "C:\\Users\\PC-Admin\\AutoZoom\\lessons\\meeting.mp4", f'C:\\Users\\PC-Admin\\AutoZoom\\lessons\\meeting_{datetime.now().strftime("%d.%m.%Y_%H-%M-%S")}.mp4'))
                             else:
                                 tgsend(getConfig("telegram_enabled"), f"◀ Конференция *{lesson_name}* длилась *{str(int(lesson_duration/60))}* мин.")
                                 print(f'{nowtime()} Конференция длилась {BGREEN}{str(lesson_duration)} сек{RESET}. ({BGREEN}{str(int(lesson_duration/60))} мин{RESET}.)')
@@ -709,7 +720,7 @@ def main(source='deamon'):
             return
 
 if __name__ == '__main__':
-    from functions import getOS, setTitle
+    from modules.functions import getOS, setTitle
     setTitle("AutoZoom (Демон)", getOS())
     import sys
     clear()

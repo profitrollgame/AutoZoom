@@ -1,12 +1,12 @@
-import rpc
+import modules.rpc as rpc
 import pathlib
 import shutil
-from functions import *
-#from daemon import
+import telegram_send
+from modules.functions import *
 
 
 if getConfig("use_colors"):
-    from colors import *
+    from modules.colors import *
     appendLog('Colors imported')
 else:
     RESET = ''
@@ -152,6 +152,7 @@ def settings():
                         if obs_choice.lower() in yes_list:
                             while True:
                                 try:
+                                    import easygui
                                     filename = easygui.fileopenbox('Выберите путь до obs32.exe или obs64.exe')
                                     if filename.find("obs64.exe") != -1:
                                         setConfig("obs_exe", filename)
@@ -173,6 +174,11 @@ def settings():
                                         break
                                     else:
                                         easygui.msgbox("Неверный путь")
+                                    break
+                                except NameError:
+                                    appendLog(f'Module "easygui" is not imported')
+                                    none = input('Модуль "easygui" не импортирован.\n\n > ')
+                                    clear()
                                     break
                                 except Exception as exp:
                                     appendLog(f'Could not select OBS path: {exp}')
@@ -532,7 +538,7 @@ def settings3():
             elif settings_choose == '6':
                 appendLog('Going to customize page')
                 clear()
-                customize()
+                #customize()
 
             elif settings_choose == '7':
                 appendLog('Resetting configuration')
@@ -543,7 +549,7 @@ def settings3():
 
                     if reset_decision.lower() in yes_list:
                     
-                        from functions import default_config
+                        from modules.functions import default_config
                         
                         saveJson(files_folder+'config.json', default_config)
                         appendLog('Configuration dropped to default')

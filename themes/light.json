@@ -1,0 +1,10 @@
+{
+    "windows": {
+        "foreground": "0",
+        "background": "f"
+    },
+    "linux": {
+        "foreground": "black",
+        "background": "white"
+    }
+}

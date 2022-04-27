@@ -9,21 +9,63 @@ import platform
 import subprocess
 from pathlib import Path
 
-import libinstaller
-
-from functions import *
+from modules.functions import *
 
 appendLog('main.py start initialized', startup=True)
 
 setTitle("", getOS())
 
+if getConfig("firstboot"):
+
+    if getOS() == "android":
+        while True:
+            os.system('clear')
+            confirmation = input(f'{BRED}Внимание! {RESET}AutoZoom практически не оптимизирован под {CYAN}Android{RESET}.\nПродолжая использовать программу на ОС кроме {CYAN}Windows {RESET}вы действуете на свой страх и риск.\nПолноценная поддержка операционной системы Android не планируется.\nДля хоть какой-то работы нужно установить Zoom\nи заранее его настроить.\n\nВведите {BGREEN}Да {RESET}если вас не пугает указанное выше.\nВведите {BRED}Нет {RESET}если вас это не устраивает, программа сама закроется.\n\n > ')
+
+            if confirmation.lower() in yes_list:
+                setConfig("firstboot", False)
+                setConfig("obs_core", "Disabled")
+                setConfig("obs_exe", "Disabled")
+                setConfig("use_rpc", False)
+                break
+                
+            elif confirmation.lower() in no_list:
+                setConfig("firstboot", True)
+                sys.exit()
+                break
+                
+            else:
+                continue
+        
+    elif getOS() == "unix":
+        while True:
+            os.system('clear')
+            confirmation = input(f'{BRED}Внимание! {RESET}AutoZoom плохо оптимизирован под {CYAN}Linux {RESET}и {CYAN}MacOS{RESET}.\nПродолжая использовать программу на ОС кроме {CYAN}Windows {RESET}вы действуете на свой страх и риск.\nПолноценная поддержка UNIX систем реализована не будет.\nДля хоть какой-то работы нужно установить Zoom\nи заранее его настроить.\n\nВведите {BGREEN}Да {RESET}если вас не пугает указанное выше.\nВведите {BRED}Нет {RESET}если вас это не устраивает, программа сама закроется.\n\n > ')
+
+            if confirmation.lower() in yes_list:
+                setConfig("firstboot", False)
+                setConfig("obs_core", "Disabled")
+                setConfig("obs_exe", "Disabled")
+                break
+                
+            elif confirmation.lower() in no_list:
+                setConfig("firstboot", True)
+                sys.exit()
+                break
+                
+            else:
+                continue
+        
+    elif getOS() == "windows":
+        setConfig("firstboot", False)
+
 from daemon import main
-import settings
-import editor
-import rpc
+import modules.settings as settings
+import modules.editor as editor
+import modules.rpc as rpc
 
 if getConfig("use_colors"):
-    from colors import *
+    from modules.colors import *
 else:
     RESET = ''
     BLACK = RED = GREEN = YELLOW = BLUE = MAGENTA = CYAN = WHITE = ''
@@ -36,7 +78,7 @@ import keyboard
 import getpass
 from zipfile import ZipFile
 
-version = 2.6
+version = 2.7
 path = Path(__file__).resolve().parent
 
 def mainMenu():
@@ -489,7 +531,7 @@ def updater(serv_ver, version):
         return
 
 if __name__ == '__main__':
-    from functions import getConfig
+    from modules.functions import getConfig
     from daemon import clear, getOS, setTitle
     import time
     setTitle("Загрузка main...", getOS())
