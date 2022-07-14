@@ -1,3 +1,6 @@
+## ⚠ Repo has moved and all the updates will be available [here](https://git.end-play.xyz/endplaystudio/AutoZoom) instead  
+This page will no longer be updated and maintained.
+
 ## Добро пожаловать в AutoZoom!
 
 Contact me [directly](https://t.me/profitroll) or via [Support Center](https://www.tidio.com/talk/ydqcvfvgkud3jjk2482uaesvjpeohlh3) if you need English translation.  
